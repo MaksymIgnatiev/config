@@ -1,0 +1,30 @@
+# 2 configuration files
+alias aliases="nv ~/.zsh_aliases"
+alias variables="nv ~/.zsh_variables"
+alias path="nv ~/.zsh_path"
+
+# Some cool stuff
+alias ls="exa --icons --group-directories-first"
+alias ll="exa -l --icons --no-user --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+alias la="exa -la --icons --no-user --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+
+alias nv="nvim"
+alias pm="pacman"
+alias p="cd $p"
+
+alias pacman="sudo pacman"
+alias c="clear"
+
+# Configurations
+alias nvimconf="nv $config/nvim/init.lua"
+alias nvconf="nvimconf"
+alias tmuxconf="nv $config/tmux/.tmux.conf"
+alias zshconf="nv ~/.zshrc"
+alias p10kconf="nv ~/.p10k.zsh"
+alias nvimdir="cd $config/nvim/"
+
+alias nvg="nv $config/nvim/lua/global"
+alias nvp="nv $config/nvim/lua/plugins"
+alias nve="nv $config/nvim/lua/essential"
+alias nvt="nv $config/nvim/lua/global/theme.lua"
+alias discord.js="nv /mnt/c/Projects/discord.js"

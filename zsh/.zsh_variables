@@ -1,0 +1,11 @@
+
+export p=~/projects
+export EDITOR="nvim"
+export home="/mnt/c/Users/ignatiev"
+
+
+export config=~/.config
+export C="/mnt/c/"
+export TERM=xterm-256color
+
+

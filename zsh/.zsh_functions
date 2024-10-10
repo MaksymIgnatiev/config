@@ -1,0 +1,14 @@
+
+add_paths() {
+	echo -e "\033[31mNot Implemented!\033[0m"
+	# local zsh_path_file="$HOME/.zsh_path"
+
+	# for path in "$@"; do
+# 		if ! grep -qF "add_to_path \"$path\"" "$zsh_path_file"; then
+# 			echo "add_to_path \"$path\"" >> "$zsh_path_file"
+# 			echo "Path '$path' has been added to .zsh_variables"
+# 		else
+# 			echo "Path '$path' already exists in .zsh_variables"
+# 		fi
+	# done
+}
