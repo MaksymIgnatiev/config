@@ -1,7 +1,11 @@
-# 2 configuration files
+require_sudo = ("pacman" "systemctl")
+
 alias aliases="nv ~/.zsh_aliases"
 alias variables="nv ~/.zsh_variables"
-alias path="nv ~/.zsh_path"
+alias path="nv ~/.zsh_variables"
+alias functions="nv ~/.zsh_variables"
+
+alias grep="grep --color=always"
 
 # Some cool stuff
 alias ls="exa --icons --group-directories-first"
@@ -12,7 +16,6 @@ alias nv="nvim"
 alias pm="pacman"
 alias p="cd $p"
 
-alias pacman="sudo pacman"
 alias c="clear"
 
 # Configurations
@@ -27,4 +30,24 @@ alias nvg="nv $config/nvim/lua/global"
 alias nvp="nv $config/nvim/lua/plugins"
 alias nve="nv $config/nvim/lua/essential"
 alias nvt="nv $config/nvim/lua/global/theme.lua"
-alias discord.js="nv /mnt/c/Projects/discord.js"
+#alias discord.js="nv /mnt/c/Projects/discord.js"
+
+
+if [[ $(whoami) != 'root' ]]; then
+	alias pacman="sudo pacman"
+	alias systemctl="sudo systemctl"
+fi
+
+# Configurations
+alias i3config="nv ~/.config/i3/config"
+alias nvimconf="nv $config/nvim/init.lua"
+alias nvconf="nvimconf"
+alias tmuxconf="nv $config/tmux/.tmux.conf"
+alias zshconf="nv ~/.zshrc"
+alias p10kconf="nv ~/.p10k.zsh"
+alias kittyconf="nv $config/kitty/kitty.conf"
+
+# Configuration files
+
+alias nvdir="cd $config/nvim"
+alias kanataconf="nv ~/.config/kanata/kanata.kbd"
