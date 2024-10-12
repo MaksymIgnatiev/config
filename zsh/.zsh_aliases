@@ -1,4 +1,4 @@
-require_sudo = ("pacman" "systemctl")
+require_sudo=("pacman" "systemctl")
 
 alias aliases="nv ~/.zsh_aliases"
 alias variables="nv ~/.zsh_variables"
