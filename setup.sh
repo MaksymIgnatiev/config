@@ -14,7 +14,7 @@ create_symlink() {
 			  ln -s "$source" "$target"
 			  echo -e "Created symlink for \033[32m$target\033[0m"
 			  ;;
-		  S|s|Skip|skip"")
+		  ""|S|s|Skip|skip)
 			  echo -e "Skipping \033[32m$target\033[0m"
 			  ;;
 		  *)
