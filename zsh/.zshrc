@@ -3,11 +3,8 @@
 # confirmations, etc.) must go above this block; everything else may go below.
 # nice arrow '➜ '
 
-# Enable recursive globbing
-# setopt globstar
-
-# Include dotfiles in glob matches
-setopt dotglob
+bindkey -v 
+setopt EXTENDED_GLOB
 
 # Load all functions in global view of shell
 source ~/.config/zsh/.zsh_functions
