@@ -96,9 +96,9 @@ source $ZSH/oh-my-zsh.sh
 
 
 export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init - zsh)"
+# eval "$(pyenv init --path)"
+# eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init - zsh)"
 
 
 
@@ -115,7 +115,7 @@ source ~/.config/zsh/.zsh_aliases
 
 eval "$(zoxide init zsh --cmd cd)"
 
-source /usr/share/nvm/init-nvm.sh
+# source /usr/share/nvm/init-nvm.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
