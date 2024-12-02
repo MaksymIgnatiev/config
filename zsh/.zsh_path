@@ -1,9 +1,9 @@
-
 add_to_path() {
-  [[ ":$PATH:" != *":$1:"* ]] && export PATH="$1:$PATH"
+	if [ -d "$1" ] || [ -f "$1" ] && ! echo "$PATH" | grep -qE "(^|:)$1(:|$)"; then
+    PATH="$1:$PATH"
+    export PATH
+  fi
 }
-
-
 
 add_to_path "/usr/sbin/xclip"
 add_to_path "$home/custom_scripts/"

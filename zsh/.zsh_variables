@@ -1,11 +1,10 @@
 
 export p=~/projects
 export EDITOR="nvim"
-export home="/mnt/c/Users/ignatiev"
-
+export BUN_INSTALL="$HOME/.bun"
 
 export config=~/.config
-export C="/mnt/c/"
 export TERM=xterm-256color
 
 
+export FZF_DEFAULT_OPTS='--preview "if [ -f {} ]; then bat --style=numbers --color=always {}; fi"'
