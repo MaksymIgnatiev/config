@@ -1,6 +1,6 @@
 require_sudo=("pacman" "systemctl")
 
-[ -z $config ] && config="~/.config"
+[ -z $config ] && config="$HOME/.config"
 
 alias aliases="nv $config/zsh/.zsh_aliases"
 alias variables="nv $config/zsh/.zsh_variables"
@@ -23,33 +23,20 @@ alias tmuxc="tmux save-buffer - | xsel -ib"
 alias nvimconf="nv $config/nvim/init.lua"
 alias nvconf="nvimconf"
 alias tmuxconf="nv $config/tmux/.tmux.conf"
-alias zshconf="nv ~/.zshrc"
+alias zshconf="nv $config/zsh/.zshrc"
 alias p10kconf="nv ~/.p10k.zsh"
-alias nvimdir="cd $config/nvim/"
 
+alias nvc="nvconf"
 alias nvg="nv $config/nvim/lua/global"
 alias nvp="nv $config/nvim/lua/plugins"
 alias nve="nv $config/nvim/lua/essential"
-alias nvt="nv $config/nvim/lua/global/theme.lua"
+alias nvt="nv $config/nvim/lua/global/theme/init.lua"
 alias nvk="nv $config/nvim/lua/global/keymaps.lua"
 
 
 # If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity)
-if ! [ $(whoami) = 'root' ]; then
-	for cmd in "${require_sudo[@]}"; do alias $cmd="sudo $cmd"; done
-fi
+[ ! $(whoami) = 'root' ] && for cmd in "${require_sudo[@]}"; do alias $cmd="sudo $cmd"; done
 
-# Configurations
-alias i3config="nv $config/i3/config"
-alias nvimconf="nv $config/nvim/init.lua"
-alias nvconf="nvimconf"
-alias tmuxconf="nv $config/tmux/.tmux.conf"
-alias zshconf="nv ~/.zshrc"
-alias p10kconf="nv ~/.p10k.zsh"
-alias kittyconf="nv $config/kitty/kitty.conf"
-
-# Configuration files
 
 alias nvdir="cd $config/nvim"
 alias nvimdir="nvdir"
-alias kanataconf="nv ~/.config/kanata/kanata.kbd"

@@ -1,4 +1,6 @@
 
+export home=/mnt/c/Users/ignatiev/
+
 export p=~/projects
 export EDITOR="nvim"
 export BUN_INSTALL="$HOME/.bun"
