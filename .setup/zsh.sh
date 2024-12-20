@@ -61,6 +61,6 @@ rm $tmp_file 2>&1 > /dev/null
 
 [ $installed -gt 0 ] && print "$GREEN$installed zsh plugin$([ ! $installed -eq 1 ] && echo "s") installed.$NC"
 
-unset install_plugin ZSH_DIR
+unset install_plugin ZSH_DIR print QUIET
 
 exit 0

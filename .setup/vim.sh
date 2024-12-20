@@ -49,3 +49,5 @@ _setup() {
 [ ! -f "$HOME/.vim/autoload/plug.vim" ] && _setup
 
 unset install_via_git _setup print
+
+exit 0

@@ -203,4 +203,6 @@ CATEGORY="vim"
 manage_symlink ./vim/.vimrc $HOME/.vimrc
 [ $REMOVE = "false" ] && category_enabled vim && ./.setup/vim.sh $SETUP_QUIET
 
+unset on_sigint print_help manage_symlink resolve_path category_enabled parse_arg check_and_create_dir backup_file ZSHC SETUP_QUIET APPEND REMOVE DIRS CATEGORY CATEGORY_ALL CATEGORY_TRUE
+
 exit 0
