@@ -18,6 +18,8 @@ NC="${ESC}[0m"
 # ZSH Config path
 ZSHC="$HOME/.config/zsh"
 
+[ ! -d $ZSHC ] && (mkdir $ZSHC && echo "${GREEN}Created directory: '$ZSHC'$NC")
+
 SETUP_QUIET="false"
 APPEND="false"
 REMOVE="false"
@@ -84,7 +86,9 @@ if [ ! -d "$CONFIG_DIR" ]; then
 fi
 
 check_and_create_dir() {
+	echo "checking dir: $1"
 	[ -z "$1" ] && return 1
+	echo "not empty"
 	if [ ! -d "$1" ]; then
 		printf "Directory %s does not exist. Create it? [Y/n] " "$1"
 		read -r create_dir
@@ -133,10 +137,9 @@ category_enabled() {
 manage_symlink() {
 	source="$(resolve_path $1)"
 	target="$(resolve_path $2)"
-	
+		
 	category_enabled "$CATEGORY" || return 0
 	[ -z $source ] || [ ! -e $source ] && echo "${RED}Source does not exist: '$source'$NC" && return 1
-
 	target_dir=$(dirname "$target")
 	check_and_create_dir "$target_dir" || return 1
 
@@ -169,7 +172,7 @@ CATEGORY="zsh"
 # Zsh configuration
 
 manage_symlink ./zsh/.zprofile      $HOME/.zprofile
-manage_symlink ./zsh/.zshrc         $ZSHC/.zshrc
+manage_symlink ./zsh/.zshrc         $HOME/.zshrc
 manage_symlink ./zsh/.zshenv        $ZSHC/.zshenv
 manage_symlink ./zsh/.zsh_aliases   $ZSHC/.zsh_aliases
 manage_symlink ./zsh/.zsh_variables $ZSHC/.zsh_variables
@@ -190,6 +193,11 @@ CATEGORY="kitty"
 # Kitty
 manage_symlink ./kitty/kitty.conf $HOME/.config/kitty/kitty.conf
 
+CATEGORY="fastfetch"
+
+# Fastfetch
+manage_symlink ./fastfetch/config.jsonc $HOME/.config/fastfetch/config.jsonc
+manage_symlink ./fastfetch/logo.png $HOME/.config/fastfetch/logo.png
 
 CATEGORY="i3"
 

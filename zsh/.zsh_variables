@@ -6,7 +6,12 @@ export EDITOR="nvim"
 export BUN_INSTALL="$HOME/.bun"
 
 export config=~/.config
-export TERM=xterm-256color
+export TERM="xterm-256color"
+export TERM="xterm-kitty"
 
+# export MOZ_ENABLE_WAYLAND=1
+# export MOZ_WEBRENDER=1
+# export MOZ_DISABLE_RDD_SANDBOX=1 
+# export MOZ_X11_EGL=1
 
 export FZF_DEFAULT_OPTS='--preview "if [ -f {} ]; then bat --style=numbers --color=always {}; fi"'

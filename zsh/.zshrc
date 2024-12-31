@@ -70,10 +70,7 @@ bindkey -s '^o' 'lfcd\n'
 # Load all functions in global view of shell
 source ~/.config/zsh/.zsh_functions
 
-# export PATH="$HOME/.pyenv/bin:$PATH"
-# eval "$(pyenv init --path)"
-# eval "$(pyenv init -)"
-# eval "$(pyenv virtualenv-init - zsh)"
+export PYENV_ROOT="$HOME/.pyenv"
 
 # Path
 source ~/.config/zsh/.zsh_path
@@ -86,7 +83,11 @@ source ~/.config/zsh/.zsh_aliases
 
 eval "$(zoxide init zsh --cmd cd)"
 
-# source /usr/share/nvm/init-nvm.sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
 
 # bun completions
 [ -s "/home/arrow_function/.bun/_bun" ] && source "/home/arrow_function/.bun/_bun"
@@ -99,3 +100,7 @@ secure_source "$HOME/.p10k.zsh"
 secure_source "$ZSH/powerlevel10k/powerlevel10k.zsh-theme"
 secure_source "$ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 secure_source "$ZSH/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+# bun
+# export BUN_INSTALL="$HOME/.bun"
+# export PATH="$BUN_INSTALL/bin:$PATH"
