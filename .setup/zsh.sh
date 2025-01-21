@@ -9,19 +9,19 @@ GRAY="${ESC}[38;5;245m"
 NC="${ESC}[0m"
 QUIET="false"
 
+# who knows where this config was pulled from, therefore, check for git
 (command -v git >/dev/null 2>&1 || echo "${YELLOW}git is not installed. Skipping...$NC" && exit 2)
 
 [ ! -z $1 ] && [ "$1" = "true" ] && QUIET="true"
 
 # Needed plugins. 
-# Format: plugin repo
+# Format: plugin_name repo
 # Plugin pairs are separated by newline
 PLUGIN_REPOS="
 zsh-autosuggestions      https://github.com/zsh-users/zsh-autosuggestions.git
 zsh-syntax-highlighting  https://github.com/zsh-users/zsh-syntax-highlighting.git
 powerlevel10k            https://github.com/romkatv/powerlevel10k.git
 "
-
 
 print() {
 	( [ $QUIET = "false" ] && echo $1 )
@@ -33,13 +33,14 @@ ZSH_DIR="$HOME/.zsh"
 
 # return code:
 # 0 = installed
-# 1 = failure/skipped
+# 1 = failure
+# 2 = skipped
 install_plugin() {
 	local plugin=$1
 	local repo=$2
 	local plugin_path="$ZSH_DIR/$plugin"
 
-	[ -d "$plugin_path" ] && return 1
+	[ -d "$plugin_path" ] && return 2
 	print "${YELLOW}Installing zsh plugin '$plugin'${NC}"
 	(git clone -q "$repo" "$plugin_path" 2>&1 > /dev/null &&\
 		print "${GREEN}Successfully installed '$plugin'.${NC}" && return 0 ||\
@@ -61,6 +62,6 @@ rm $tmp_file 2>&1 > /dev/null
 
 [ $installed -gt 0 ] && print "$GREEN$installed zsh plugin$([ ! $installed -eq 1 ] && echo "s") installed.$NC"
 
-unset install_plugin ZSH_DIR print QUIET
+unset install_plugin installed ZSH_DIR print QUIET tmp_file
 
 exit 0

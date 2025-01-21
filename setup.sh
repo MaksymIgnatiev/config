@@ -1,11 +1,6 @@
 #!/bin/sh
 
-on_sigint() {
-	unset on_sigint
-    exit 0
-}
-
-trap 'on_sigint' INT
+trap 'exit 0' INT
 
 ESC=$(printf '\033')
 RED="${ESC}[31m"
@@ -15,44 +10,55 @@ CYAN="${ESC}[36m"
 GRAY="${ESC}[38;5;245m"
 NC="${ESC}[0m"
 
-# ZSH Config path
-ZSHC="$HOME/.config/zsh"
-
-[ ! -d $ZSHC ] && (mkdir $ZSHC && echo "${GREEN}Created directory: '$ZSHC'$NC")
-
 SETUP_QUIET="false"
-APPEND="false"
+EXTRA="true"
 REMOVE="false"
+FORCE_SETUP="false"
 
-DIRS=$(ls -d */ | tr -d '/' | tr '\n' ' ')
+# Required tools for this script to work properly
+REQUIRED_TOOLS="realpath readlink"
+
+# who knows where this config was pulled from, therefore, check for git
+OPTIONAL_TOOLS="git curl wget"
+
+# List of all categories that needs to be excluded from being invoked (separated by space)
+CATEGORY_EXCLUDE="pictures"
+CATEGORY_EXCLUDE=""
+
+DIRS=$(find . -maxdepth 1 -type d ! -name '.*' | xargs -n 1 basename | sort | tr '\n' ' ') 
+CATEGORY_EXCLUDE=$(echo $CATEGORY_EXCLUDE | xargs)
+[ "$CATEGORY_EXCLUDE" != "" ] && DIRS=$(echo $DIRS | sed "s/$(echo $CATEGORY_EXCLUDE | sed 's/ \+/\\|/g')//g" )
 CATEGORY_ALL="true"
 CATEGORY_TRUE=""
 CATEGORY=""
 
 
 print_help() {
-	echo "Perform a setup on all configs, or on picked categories"
-	echo "Usage: $GREEN./setup.sh$NC $GREEN[flags...] | -[short flag sequence] [category...]$NC"
+	echo "Usage: $GREEN$0$NC $GREEN[flag...] [category...]$NC"
+	echo "Setups/removes the config files, optionaly for certain category(-ies) (see ${GREEN}CATEGORY$NC)"
 	echo "FLAGS:"
-	echo "${GREEN}-h, --help$NC      Print this help message"
-	echo "${GREEN}-q, --quiet$NC     Do setup before linking quiet (zsh/vim setup)"
-	echo "${GREEN}-a, --add$NC       Add missing links without changing old ones and making new backups"
-	echo "${GREEN}-r, --remove$NC    Remove all links"
+	echo "${GREEN}-h, --help$NC        Print this help message"
+	echo "${GREEN}-q, --quiet$NC       Do setup before linking quiet"
+	echo "${GREEN}-n, --nowarning$NC   Skip files that are already configured (setup), or don't show the warning when trying to remove non-existent file (remove)"
+	echo "${GREEN}-r, --remove$NC      Remove links (for certain category, if needed)"
+	echo "${GREEN}-a, --additional$NC  Perform forced additional setup for needed categories(-ry)"
 	echo "CATEGORY:"
-	for _dir in $(ls -d */); do printf "${GREEN}$(basename "${_dir%/}")$NC "; done && echo ""
+	for _dir in $DIRS; do printf "${GREEN}$(basename "${_dir%/}")$NC "; done && echo ""
 }
+
 
 parse_arg() {
 	case "$1" in
 		-h | --[Hh][Ee][Ll][Pp]) print_help && exit 0 ;;
 		-q | --[Qq][Uu][Ii][Ee][Tt]) SETUP_QUIET="true" ;;
-		-a | --[Aa][Pp][Pp][Ee][Nn][Dd]) APPEND="true" ;;
+		-n | --[Nn][Oo][Ww][Aa][Rr][Nn][Ii][Nn][Gg]) EXTRA="true" ;;
 		-r | --[Rr][Ee][Mm][Oo][Vv][Ee]) REMOVE="true" ;;
+		-a | --[Aa][Dd][Dd][Ii][Tt][Ii][Oo][Nn][Aa][Ll]) FORCE_SETUP="true" ;;
 		-* | --*) echo "${YELLOW}Unknown flag: '$1'" && exit 0 ;;
 		*) 
 			echo "$DIRS" | grep -q -w "$1" && \
 				CATEGORY_ALL="false" && CATEGORY_TRUE="$CATEGORY_TRUE $1" || \
-				{ echo "${YELLOW}Not a category: '$1'$NC" && exit 0; } ;;
+				{ echo "${YELLOW}Not a category: '$1'$NC" && return 0; } ;;
 	esac
 }
 
@@ -71,33 +77,28 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-HOME_DIR="${HOME:?$YELLOW\$HOME is not set. Check your environment!$NC}"
-CONFIG_DIR="${CONFIG:-$XDG_CONFIG_HOME}"
-[ -z "$CONFIG_DIR" ] && CONFIG_DIR="$HOME/.config"
+for tool in $REQUIRED_TOOLS; do 
+	command -v $tool >/dev/null 2>&1 || echo "${YELLOW}Tool '$tool' is required for setup script.$NC"
+done
 
-if [ ! -d "$CONFIG_DIR" ]; then
-	echo "${YELLOW}Configuration directory not found: $CONFIG_DIR$NC"
-	echo "Fallback to default: $HOME/.config"
+CONFIG_DIR="${CONFIG:-$XDG_CONFIG_HOME}"
+ 
+
+[ "$CONFIG_DIR" != "" ] && \
+	([ ! -d "$CONFIG_DIR" ] && echo "${RED}Configuration directory '$CONFIG_DIR' is not a directory.${NC}" && exit 1) || \
 	CONFIG_DIR="$HOME/.config"
-	if [ ! -d "$CONFIG_DIR" ]; then
-		echo "${RED}Cannot find or create configuration directory.${NC}"
-		exit 1
-	fi
-fi
 
 check_and_create_dir() {
-	echo "checking dir: $1"
 	[ -z "$1" ] && return 1
-	echo "not empty"
-	if [ ! -d "$1" ]; then
-		printf "Directory %s does not exist. Create it? [Y/n] " "$1"
-		read -r create_dir
-		case "$create_dir" in
-			[Yy] | [Yy][Ee][Ss] | "") mkdir -p "$1" && echo "${GREEN}Created: $1$NC" && return 0 ;;
-			[Nn] | [Nn][Oo]) echo "Skipped creating $1" && return 1 ;;
-			*) echo "Invalid input. Skipping..." && return 1 ;;
-		esac
-	fi
+	[ -d "$1" ] && return 0
+
+	printf "${YELLOW}Directory $1/ does not exist. Create it? [Y/n]:$NC "
+	read -r create_dir
+	case "$create_dir" in
+		[Yy] | [Yy][Ee][Ss] | "") mkdir -p "$1" && echo "${GREEN}Created: $1/$NC" && return 0 ;;
+		[Nn] | [Nn][Oo]) echo "Skipped creating $1" && return 1 ;;
+		*) echo "Invalid input. Skipping..." && return 1 ;;
+	esac
 	return 0
 }
 
@@ -111,17 +112,27 @@ backup_file() {
 resolve_path() {
 	input_path="$1"
 	[ -z "$input_path" ] && return 1
-	(
-	case "$input_path" in
-		/*) cd "$(dirname "$input_path")" && echo "$(pwd)/$(basename "$input_path")" || echo "" ;;
-		*) cd "$(pwd)/$(dirname "$input_path")" && echo "$(pwd)/$(basename "$input_path")" || echo "" ;;
-	esac
-	) 2>/dev/null || return 1
+	realpath -s "$input_path" 2>/dev/null || return 1
+	return 0
 }
 
 category_enabled() {
 	[ -z "$1" ] && return 0
-	return $([ $CATEGORY_ALL = "true" ] || echo "$CATEGORY_TRUE" | grep -q -w "$1" && echo "$?")
+	[ $CATEGORY_ALL = "true" ] || echo "$CATEGORY_TRUE" | grep -q -w "$1"
+	return $?
+}
+
+# Allows or disallows to execute the setup script for specific category based on provided `$CATEGORY` and `$REMOVE`
+setup_script() {
+	[ -z $1 ] && return 1
+	[ $REMOVE = "false" ] && category_enabled $1 
+	return $?
+}
+
+# returns a 0 or 1 return code as indication to allow output extra information (warnings, extra steps)
+extra_info() {
+	[ $EXTRA = "true" ]
+	return $?
 }
 
 # Manage a symlink to a file
@@ -129,15 +140,20 @@ category_enabled() {
 # - create symlink with asking for a backup
 # - create symlink for needed rest (only those who are not yet linked)
 # - remove symlink
+# - remove symlink without warnings for non-existent files
 # Usage:
 # manage_symlink /absolute/path/to/source  /absolute/path/to/destination
 # manage_symlink relative/path/to/source   /absolute/path/to/destination
-# manage_symlink ./relative/path/to/source ../relative/path/to/destination
+# manage_symlink ./relative/path/to/source ./relative/path/to/destination
 # manage_symlink /absolute/path/to/source  relative/path/to/destination
+#
+# Note! When removing link, it performs check on wether file is a link, and points to a specific (given to a function) file in config. So regular files and symlinks that points to a different location will not be removed
 manage_symlink() {
+	[ $# -lt 2 ] && echo "${RED}manage_symlink: Too few arguments. Usage: manage_symlink path/to/source path/to/destination$NC" && return 1
+
 	source="$(resolve_path $1)"
 	target="$(resolve_path $2)"
-		
+
 	category_enabled "$CATEGORY" || return 0
 	[ -z $source ] || [ ! -e $source ] && echo "${RED}Source does not exist: '$source'$NC" && return 1
 	target_dir=$(dirname "$target")
@@ -145,9 +161,14 @@ manage_symlink() {
 
 	if [ -e $target ]; then
 		if [ $REMOVE = "true" ]; then
-			rm $target && echo "${GREEN}Removed symlink:$NC $CYAN$target$NC $GRAY->$NC $CYAN$source$NC"
+			[ -L $target ] && \
+				{
+					[ $(readlink $target) = $source ] && \
+					rm $target && echo "${GREEN}Removed symlink:$NC $CYAN$target$NC $GRAY->$NC $CYAN$source$NC" || \
+					extra_info && echo "${YELLOW}Link $target points to a different location. Skipping...$NC"
+				} || extra_info && echo "${YELLOW}File $target is not a symlink. Skipping...$NC"
 		else
-			[ $APPEND = "true" ] && return 0
+			extra_info && return 0
 			printf "${YELLOW}Target already exists: $target. Replace (backup old)? [Y/n]:$NC "
 			read -r replace
 			case "$replace" in
@@ -157,17 +178,92 @@ manage_symlink() {
 			esac
 		fi
 	else
-		[ $REMOVE = "false" ] && ln -s "$source" "$target" && echo "${GREEN}Symlink created:$NC $CYAN$target$NC $GRAY->$NC $CYAN$source$NC" || \
-			echo "${YELLOW}Could't find the destination to unlink: $target$NC"
+		[ $REMOVE = "false" ] && \
+			ln -s "$source" "$target" && \
+			echo "${GREEN}Symlink created:$NC $CYAN$target$NC $GRAY->$NC $CYAN$source$NC" || \
+			(extra_info && echo "${YELLOW}Could't find the destination to unlink: $target$NC")
 	fi
 }
 
 
+# How to use config files and manage them:
+# 1. Set $CATEGORY variable to a desired category that will be configured
+#
+# 2. Add custom setup scripts with following syntax:
+# ```sh
+# setup_script category_name && path/to/setup/script
+# ```
+#
+# 3. Add custom symlink managing with the following syntax:
+# ```sh
+# manage_symlink path/to/source path/to/destination
+# ```
+# Note! `manage_symlink` function can symlink not only files, but directories also. See implementation
+#
+# 4. Add post setup scripts with the previously shown syntax as in point 2.
+
+
+# Per-category setup
+
+
+CATEGORY="fastfetch"
+
+# Fastfetch
+manage_symlink ./fastfetch/config.jsonc $CONFIG_DIR/fastfetch/config.jsonc
+manage_symlink ./fastfetch/logo.png $CONFIG_DIR/fastfetch/logo.png
+
+
+CATEGORY="i3"
+
+# i3
+manage_symlink ./i3/config $CONFIG_DIR/i3/config
+
+
+CATEGORY="kitty"
+
+# Kitty
+manage_symlink ./kitty/kitty.conf $CONFIG_DIR/kitty/kitty.conf
+
+
+CATEGORY="polybar"
+
+# Polybar
+manage_symlink ./polybar/config.ini $CONFIG_DIR/polybar/config.ini
+manage_symlink ./polybar/launch_polybar.sh $CONFIG_DIR/polybar/launch_polybar.sh
+
+CATEGORY="rofi"
+
+# Rofi
+manage_symlink ./rofi/config.rasi $CONFIG_DIR/rofi/config.rasi
+manage_symlink ./rofi/custom.rasi $CONFIG_DIR/rofi/custom.rasi
+
+CATEGORY="tmux"
+
+# Tmux configuration
+manage_symlink ./tmux/.tmux.conf $HOME/.tmux.conf
+
+# Tmux post setup script
+setup_script tmux && ./.setup/tmux.sh $SETUP_QUIET
+
+
+CATEGORY="vim"
+
+# Vim setup
+manage_symlink ./vim/.vimrc $HOME/.vimrc
+
+# Vim post setup script
+# automaticaly installs vim-plug, and if vim installed - installs all needed plugins (that are listed in `.vimrc` file)
+setup_script vim && ./.setup/vim.sh $SETUP_QUIET
+
+
 CATEGORY="zsh"
 
-# Zsh setup
+# ZSH Config path (just alias to not write full path every time)
+ZSHC="$CONFIG_DIR/zsh"
 
-[ $REMOVE = "false" ] && category_enabled zsh && ./.setup/zsh.sh $SETUP_QUIET
+# Zsh setup
+# Initialises directory, and installs needed plugins
+setup_script zsh && ./.setup/zsh.sh $SETUP_QUIET
 
 # Zsh configuration
 
@@ -181,36 +277,6 @@ manage_symlink ./zsh/.zsh_functions $ZSHC/.zsh_functions
 
 manage_symlink ./zsh/.p10k.zsh      $HOME/.p10k.zsh
 
-
-CATEGORY="tmux"
-
-# Tmux
-manage_symlink ./tmux/.tmux.conf $HOME/.tmux.conf
-
-
-CATEGORY="kitty"
-
-# Kitty
-manage_symlink ./kitty/kitty.conf $HOME/.config/kitty/kitty.conf
-
-CATEGORY="fastfetch"
-
-# Fastfetch
-manage_symlink ./fastfetch/config.jsonc $HOME/.config/fastfetch/config.jsonc
-manage_symlink ./fastfetch/logo.png $HOME/.config/fastfetch/logo.png
-
-CATEGORY="i3"
-
-# i3
-manage_symlink ./i3/config $HOME/.config/i3/config
-
-
-CATEGORY="vim"
-
-# Vim
-manage_symlink ./vim/.vimrc $HOME/.vimrc
-[ $REMOVE = "false" ] && category_enabled vim && ./.setup/vim.sh $SETUP_QUIET
-
-unset on_sigint print_help manage_symlink resolve_path category_enabled parse_arg check_and_create_dir backup_file ZSHC SETUP_QUIET APPEND REMOVE DIRS CATEGORY CATEGORY_ALL CATEGORY_TRUE
+unset print_help manage_symlink resolve_path category_enabled parse_arg check_and_create_dir backup_file ZSHC SETUP_QUIET EXTRA REMOVE DIRS CATEGORY CATEGORY_ALL CATEGORY_TRUE category_enabled extra_info CATEGORY_EXCLUDE
 
 exit 0

@@ -15,49 +15,38 @@ gaps outer 0
 
 for_window [class="^.*"] border pixel 0
 
+# Mod4 = Meta, Mod1 = Alt
 set $mod Mod4
-# set $mod Mod1
 
+# Sets the delay and repeat rate for key pressing
+# xset r rate <delay> <rate>
+exec_always --no-startup-id xset r rate 200 45
 exec --no-startup-id picom
 exec --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id setxkbmap -option ctrl:nocaps
 #exec_always --no-startup-id xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
 #exec_always --no-startup-id xinput set-prop 10 "libinput Tapping Enabled" 1
 
-
-
-# Replace 'us' with your actual layout code
-# exec_always --no-startup-id setxkbmap -layout us
+exec --no-startup-id dunst
 
 # Set <Alt> + <Shift> to cycle through keyboard layouts 
 exec_always --no-startup-id setxkbmap -layout us,ru -option grp:alt_shift_toggle
 #exec_always --no-startup-id setxkbmap -layout "us,ru" -option "grp:alt_shift_toggle" -option "grp:toggle" -option "grp:ralt_toggle"
 
 
-# kill any hanging polybar processes
 exec_always killall polybar
 exec_always --no-startup-id ~/.config/i3/scripts/launch_polybar.sh
 
 
-exec --no-startup-id pulseaudio --start
-
-
 exec_always --no-startup-id ~/.screenlayout/default.sh
-exec_always feh --bg-scale ~/Pictures/green_arrow_wallpaper.jpg
-#exec_always --no-startup-id ~/.config/i3/scripts/knt_sh.sh
+exec_always --no-startup-id ~/.config/i3/scripts/set_background.sh
 
 
-# bindsym Print exec maim "/home/$USER/Pictures/$(date).jpg"
-# bindsym $mod+Print exec maim --window $(xdotool getactivewindow) "/home/$USER/Pictures/$(date).jpg"
-# bindsym Shift+Print exec maim --select "/home/$USER/Pictures/$(date).jpg"
+# need fix
+# bindsym Print exec spectacle -bnr
 
-## Clipboard Screenshots
-bindsym Print exec maim -s | xclip -selection clipboard -t image/png 
-# bindsym Ctrl+$mod+Print exec maim --window $(xdotool getactivewindow) | xclip -selection clipboard -t image/png
-# bindsym Ctrl+Shift+Print exec maim --select | xclip -selection clipboard -t image/png
+bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
 
-# Font for window titles. Will also be used by the bar unless a different font
-# is used in the bar {} block below.
 font pango:FiraCode Nerd Font 14
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
@@ -68,8 +57,6 @@ font pango:FiraCode Nerd Font 14
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
 
-# The combination of xss-lock, nm-applet and pactl is a popular choice, so
-# they are included here as an example. Modify as you see fit.
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
@@ -80,19 +67,19 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
 
 # Use pactl to adjust volume in PulseAudio.
-set $refresh_i3status killall -SIGUSR1 i3status
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
-bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
-bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+# set $refresh_i3status killall -SIGUSR1 i3status
+# bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
+# bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
+# bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
+# bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+# bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+# bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
 
-# Use Mouse+$mod to drag floating windows to their wanted position
+# Use Mouse+$mod to drag floating windows
 floating_modifier $mod
 
-# start a terminal
-bindsym $mod+Enter exec --no-startup-id kitty
+# `Return` - Enter (carriege return)
+bindsym $mod+Return exec --no-startup-id kitty
 
 
 # kill focused window
@@ -102,6 +89,7 @@ bindsym $mod+q kill
 bindsym $mod+d exec --no-startup-id rofi -show drun
 bindsym $mod+space exec --no-startup-id rofi -show combi
 bindsym $mod+Tab exec --no-startup-id rofi -show window
+bindsym $mod+p exec --no-startup-id rofi -show filebrowser
 
 # change focus
 bindsym $mod+h focus left
