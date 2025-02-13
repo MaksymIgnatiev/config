@@ -1,24 +1,20 @@
 # Config monorepo
 
-Repo for storing all the configguration for different tools. This repo includes:  
-Zsh:  
- - .zshrc (main configuration for the zsh)  
- - .p10k.zsh  (theme for prompt line)  
- - .zsh_aliases  (all custom aliases)  
- - .zsh_variables  (all env variables)  
- - .zsh_path  (all custom paths)  
- - .zsh_functions  (all custom functions)  
+Repo for storing all the configuration for the different tools.  
+How to setup all up:
+1. Run setup script with the help flag to see the usage
+```sh
+./setup.sh -h
+```
+2. Run the setup script with needed flags and arguments:
+```sh
+./setup.sh [flags ...] [categories ...]
+```
 
-Tmux: 
- - .tmux.conf
+Documentation on usage can be found inside [`setup.sh`](setup.sh) file at line ~190.  
+___
 
-Kitty:
- - kitty.conf
 
-i3:
- - config
- - scripts/
+## License
 
-Fastfetch:
- - config.jsonc
- - logo.png
+This project is licensed under the 0BSD License - see the [LICENSE](LICENSE) file for details.  

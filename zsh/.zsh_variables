@@ -1,17 +1,18 @@
-
-export home=/mnt/c/Users/ignatiev/
-
-export p=~/projects
 export EDITOR="nvim"
+export VISUAL="nvim"
+export BROWSER="librewolf"
+
 export BUN_INSTALL="$HOME/.bun"
 
+# need for aliases
 export config=~/.config
-export TERM="xterm-256color"
+
+# export TERM="xterm-256color"
 export TERM="xterm-kitty"
 
-# export MOZ_ENABLE_WAYLAND=1
-# export MOZ_WEBRENDER=1
-# export MOZ_DISABLE_RDD_SANDBOX=1 
-# export MOZ_X11_EGL=1
+# export GTK_THEME=Breeze-Dark
+# export XCURSOR_THEME=Breeze-Dark
+# export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_QPA_PLATFORMTHEME=qt5ct
 
-export FZF_DEFAULT_OPTS='--preview "if [ -f {} ]; then bat --style=numbers --color=always {}; fi"'
+export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'

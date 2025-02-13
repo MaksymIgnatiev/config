@@ -15,13 +15,17 @@ autoload -U colors && colors
 
 ZSH="$HOME/.zsh"
 
-HISTFILE="$HOME/.zsh_history"
+# Where all zsh configuration will be
+ZDOTDIR="$HOME/.config/zsh"
+
+HISTFILE="$ZDOTDIR/.zsh_history"
 SAVEHIST=10000
 HISTSIZE=32168
 
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
-# zmodload zsh/compinit # need fix: failed to load module `zsh/compinit': /usr/lib/zsh/5.9/zsh/compinit.so: cannot open shared object file: No such file or directory
+# need fix: failed to load module `zsh/compinit': /usr/lib/zsh/5.9/zsh/compinit.so: cannot open shared object file: No such file or directory
+# zmodload zsh/compinit
 _comp_options+=(globdots)
 
 # 'Ctrl + e' to edit current command in editor (i guess not vscode xd)
@@ -29,7 +33,7 @@ autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
 
 # 'Shift + Tab' to select previous item in menu
-bindkey '^[[1;2Z' reverse-menu-complete
+bindkey '^[[Z' reverse-menu-complete
 
 # need fix: no such keymap `menuselect'
 # select in menu with vim keys (place this after compinit)
@@ -61,10 +65,9 @@ lfcd() {
 		[ -d $_dir ] && [ $_dir != `pwd` ] && cd $_dir
 	fi
 }
+
 # 'Ctrl + o' to select a dir with `lf` to cd into it
 bindkey -s '^o' 'lfcd\n'
-
-
 
 
 # Load all functions in global view of shell
@@ -101,6 +104,3 @@ secure_source "$ZSH/powerlevel10k/powerlevel10k.zsh-theme"
 secure_source "$ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 secure_source "$ZSH/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
-# bun
-# export BUN_INSTALL="$HOME/.bun"
-# export PATH="$BUN_INSTALL/bin:$PATH"

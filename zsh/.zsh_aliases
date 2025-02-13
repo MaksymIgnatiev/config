@@ -1,18 +1,21 @@
-require_sudo=("pacman" "systemctl")
+# List needed command to run automaticaly with sudo separated by space
+require_sudo="pacman"
 
 [ -z $config ] && config="$HOME/.config"
 
-alias aliases="nv $config/zsh/.zsh_aliases"
-alias variables="nv $config/zsh/.zsh_variables"
-alias path="nv $config/zsh/.zsh_path"
-alias functions="nv $config/zsh/.zsh_functions"
+alias nvdir="cd $config/nvim"
+alias nvimdir="nvdir"
+
+alias aliases="  (cd $config/zsh/ && nv $config/zsh/.zsh_aliases)"
+alias variables="(cd $config/zsh/ && nv $config/zsh/.zsh_variables)"
+alias path="     (cd $config/zsh/ && nv $config/zsh/.zsh_path)"
+alias functions="(cd $config/zsh/ && nv $config/zsh/.zsh_functions)"
 
 alias grep="grep --color=always"
 
-# Some cool stuff
-alias ls="exa --icons --group-directories-first"
-alias ll="exa -l --icons --no-user --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
-alias la="exa -la --icons --no-user --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+alias ls="exa     --icons --group-directories-first"
+alias ll="exa -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+alias la="exa -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
 
 alias nv="nvim"
 alias pm="pacman"
@@ -20,23 +23,20 @@ alias c="clear"
 alias tmuxc="tmux save-buffer - | xsel -ib"
 
 # Configurations
-alias nvimconf="nv $config/nvim/init.lua"
+alias nvimconf="(nvdir && nv $config/nvim/init.lua)"
 alias nvconf="nvimconf"
-alias tmuxconf="nv $config/tmux/.tmux.conf"
-alias zshconf="nv $config/zsh/.zshrc"
+alias tmuxconf="(cd && nv .tmux.conf)"
+alias zshconf="nv ~/.zshrc"
 alias p10kconf="nv ~/.p10k.zsh"
+alias i3conf="(cd $config/i3 && nv config)"
 
+# Neovim shortcuts
 alias nvc="nvconf"
-alias nvg="nv $config/nvim/lua/global"
-alias nvp="nv $config/nvim/lua/plugins"
-alias nve="nv $config/nvim/lua/essential"
-alias nvt="nv $config/nvim/lua/global/theme/init.lua"
-alias nvk="nv $config/nvim/lua/global/keymaps.lua"
+alias nvg="(nvdir && cd lua/global       && nv $config/nvim/lua/global)"
+alias nvp="(nvdir && cd lua/plugins      && nv $config/nvim/lua/plugins)"
+alias nvt="(nvdir && cd lua/global/theme && nv $config/nvim/lua/global/theme)"
+alias nvk="(nvdir && cd lua/global       && nv $config/nvim/lua/global/keymaps.lua)"
 
 
-# If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity)
-[ ! $(whoami) = 'root' ] && for cmd in "${require_sudo[@]}"; do alias $cmd="sudo $cmd"; done
-
-
-alias nvdir="cd $config/nvim"
-alias nvimdir="nvdir"
+# If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity of usage)
+[ ! $(whoami) = 'root' ] && for cmd in $require_sudo ; do alias $cmd="sudo $cmd"; done

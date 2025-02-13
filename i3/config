@@ -10,6 +10,13 @@
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 hide_edge_borders smart
 
+exec_always --no-startup-id xrandr --output HDMI1 --auto --right-of eDP1
+
+# Disable DPMS
+exec --no-startup-id xset -dpms
+# Disable screen blank
+exec --no-startup-id xset s off
+
 gaps inner 0
 gaps outer 0
 
@@ -18,45 +25,15 @@ for_window [class="^.*"] border pixel 0
 # Mod4 = Meta, Mod1 = Alt
 set $mod Mod4
 
-# Sets the delay and repeat rate for key pressing
-# xset r rate <delay> <rate>
-exec_always --no-startup-id xset r rate 200 45
+# Start background processes
+
 exec --no-startup-id picom
-exec --no-startup-id xrdb -merge ~/.Xresources
-exec_always --no-startup-id setxkbmap -option ctrl:nocaps
-#exec_always --no-startup-id xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
-#exec_always --no-startup-id xinput set-prop 10 "libinput Tapping Enabled" 1
-
 exec --no-startup-id dunst
-
-# Set <Alt> + <Shift> to cycle through keyboard layouts 
-exec_always --no-startup-id setxkbmap -layout us,ru -option grp:alt_shift_toggle
-#exec_always --no-startup-id setxkbmap -layout "us,ru" -option "grp:alt_shift_toggle" -option "grp:toggle" -option "grp:ralt_toggle"
-
-
-exec_always killall polybar
-exec_always --no-startup-id ~/.config/i3/scripts/launch_polybar.sh
-
-
-exec_always --no-startup-id ~/.screenlayout/default.sh
-exec_always --no-startup-id ~/.config/i3/scripts/set_background.sh
-
-
-# need fix
-# bindsym Print exec spectacle -bnr
-
-bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
-
-font pango:FiraCode Nerd Font 14
-
-# This font is widely installed, provides lots of unicode glyphs, right-to-left
-# text rendering and scalability on retina/hidpi displays (thanks to pango).
-#font pango:DejaVu Sans Mono 8
+exec --no-startup-id flameshot
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
 exec --no-startup-id dex --autostart --environment i3
-
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
@@ -66,14 +43,52 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
+
+exec --no-startup-id easyeffects --gapplication-service
+
+
+
+
+
+
+
+# Sets the delay and repeat rate for key pressing
+# xset r rate <delay> <rate>
+exec_always --no-startup-id xrdb -merge ~/.Xresources
+exec_always --no-startup-id xset r rate 200 55
+exec_always --no-startup-id setxkbmap -option ctrl:nocaps
+# exec_always --no-startup-id xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
+# exec_always --no-startup-id xinput set-prop 10 "libinput Tapping Enabled" 0
+
+# Set <Alt> + <Shift> to cycle through keyboard layouts 
+exec_always --no-startup-id setxkbmap -layout us,se,ru -option grp:alt_shift_toggle
+
+# launch polybar
+# kill all existing instanses
+exec_always killall -9 polybar
+# launch for every screen in watch mode
+exec_always --no-startup-id ~/.config/polybar/scripts/launch_polybar.sh
+
+exec_always --no-startup-id ~/.config/i3/scripts/set_background.sh
+
+
+
+
+
+font pango:FiraCode Nerd Font 14
+
+# This font is widely installed, provides lots of unicode glyphs, right-to-left
+# text rendering and scalability on retina/hidpi displays (thanks to pango).
+#font pango:DejaVu Sans Mono 8
+
+
 # Use pactl to adjust volume in PulseAudio.
-# set $refresh_i3status killall -SIGUSR1 i3status
-# bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
-# bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
-# bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
-# bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
-# bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
-# bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+bindsym XF86MonBrightnessUp exec ~/.config/i3/scripts/operate_on_current_screen.sh brightness +10
+bindsym XF86MonBrightnessDown exec ~/.config/i3/scripts/operate_on_current_screen.sh brightness -10
 
 # Use Mouse+$mod to drag floating windows
 floating_modifier $mod
@@ -85,11 +100,18 @@ bindsym $mod+Return exec --no-startup-id kitty
 # kill focused window
 bindsym $mod+q kill
 
-# start rofi (a program launcher)
+# start rofi
 bindsym $mod+d exec --no-startup-id rofi -show drun
 bindsym $mod+space exec --no-startup-id rofi -show combi
 bindsym $mod+Tab exec --no-startup-id rofi -show window
 bindsym $mod+p exec --no-startup-id rofi -show filebrowser
+
+# bindsym Print exec --no-startup-id spectacle -br
+bindsym Print exec --no-startup-id flameshot gui
+
+# fallback variant for screenshot if others don't work
+# bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
+
 
 # change focus
 bindsym $mod+h focus left
@@ -98,9 +120,9 @@ bindsym $mod+k focus up
 bindsym $mod+l focus right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
 bindsym $mod+Right focus right
 
 # move focused window
