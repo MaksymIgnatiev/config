@@ -69,14 +69,12 @@ lfcd() {
 # 'Ctrl + o' to select a dir with `lf` to cd into it
 bindkey -s '^o' 'lfcd\n'
 
-
-# Load all functions in global view of shell
+# Load all functions in global view of the shell
 source ~/.config/zsh/.zsh_functions
-
-export PYENV_ROOT="$HOME/.pyenv"
 
 # Path
 source ~/.config/zsh/.zsh_path
+unset add_to_path
 
 # Variables
 source ~/.config/zsh/.zsh_variables
@@ -86,8 +84,7 @@ source ~/.config/zsh/.zsh_aliases
 
 eval "$(zoxide init zsh --cmd cd)"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"

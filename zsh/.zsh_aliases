@@ -1,4 +1,4 @@
-# List needed command to run automaticaly with sudo separated by space
+# List needed command to run automaticaly with sudo prepended with space
 require_sudo="pacman"
 
 [ -z $config ] && config="$HOME/.config"
@@ -21,6 +21,7 @@ alias nv="nvim"
 alias pm="pacman"
 alias c="clear"
 alias tmuxc="tmux save-buffer - | xsel -ib"
+alias nvhist="(cd $config/zsh && nv +G .zsh_history)"
 
 # Configurations
 alias nvimconf="(nvdir && nv $config/nvim/init.lua)"
@@ -29,6 +30,8 @@ alias tmuxconf="(cd && nv .tmux.conf)"
 alias zshconf="nv ~/.zshrc"
 alias p10kconf="nv ~/.p10k.zsh"
 alias i3conf="(cd $config/i3 && nv config)"
+alias i3scripts="(cd $config/i3/scripts && nv .)"
+alias polybarconf="(cd $config/polybar && nv .)"
 
 # Neovim shortcuts
 alias nvc="nvconf"

@@ -3,7 +3,7 @@ add_to_path() {
 }
 
 add_to_path "/usr/sbin/xclip"
-add_to_path "$home/scripts/"
+add_to_path "$HOME/scripts/"
 # add_to_path "$HOME/.pyenv/versions"
 add_to_path "$HOME/.pyenv/versions/3.12.5/envs/default_3.12/lib/python3.12/site-packages/"
 add_to_path "$HOME/.jsvu"
