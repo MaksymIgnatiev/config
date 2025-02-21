@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Inspired by: https://www.youtube.com/@BreadOnPenguins: https://www.youtube.com/watch?v=7yHYH7I4o9s
+
 # Path to save all recordings
 SAVE_PATH="$HOME/Videos/ffmpeg/"
 
