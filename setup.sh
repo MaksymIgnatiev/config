@@ -223,7 +223,7 @@ manage_symlink() {
 
 CATEGORY="dunst"
 
-# Fastfetch
+# Dunst
 manage_symlink ./dunst/dunstrc $CONFIG_DIR/dunst/dunstrc
 
 
