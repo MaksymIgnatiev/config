@@ -57,11 +57,12 @@ exec --no-startup-id easyeffects --gapplication-service
 exec_always --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id xset r rate 200 55
 exec_always --no-startup-id setxkbmap -option ctrl:nocaps
-# exec_always --no-startup-id xinput set-prop 10 "libinput Natural Scrolling Enabled" 1
-# exec_always --no-startup-id xinput set-prop 10 "libinput Tapping Enabled" 0
+exec_always --no-startup-id ~/.config/i3/scripts/configure_touchpad.sh
+# exec_always --no-startup-id xinput set-prop 11 "libinput Tapping Enabled" 1
 
 # Set <Alt> + <Shift> to cycle through keyboard layouts 
 exec_always --no-startup-id setxkbmap -layout us,se,ru -option grp:alt_shift_toggle
+# exec_always --no-startup-id xcape -e "Control_L=ISO_Next_Group;Shift_L=ISO_Next_Group"
 
 # launch polybar
 # kill all existing instanses
@@ -106,12 +107,12 @@ bindsym $mod+space exec --no-startup-id rofi -show combi
 bindsym $mod+Tab exec --no-startup-id rofi -show window
 bindsym $mod+p exec --no-startup-id rofi -show filebrowser
 
-# bindsym Print exec --no-startup-id spectacle -br
-bindsym Print exec --no-startup-id flameshot gui
-
+bindsym Print exec --no-startup-id flameshot gui 2>&1 >/dev/null 
 # fallback variant for screenshot if others don't work
 # bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
 
+# Screen record with ffmpeg
+bindsym $mod+Print exec --no-startup-id ~/.config/i3/scripts/record.sh
 
 # change focus
 bindsym $mod+h focus left
