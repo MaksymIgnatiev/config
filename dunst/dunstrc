@@ -1,0 +1,11 @@
+[global]
+font = Fira Code Nerd Font 14
+frame_color = "#0a0"
+foreground = "#afa"
+background = "#030"
+frame_width = 2
+separator_color = frame
+padding = 10
+horizontal_padding = 15
+corner_radius = 10
+width = (200, 700)
