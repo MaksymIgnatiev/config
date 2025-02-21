@@ -11,7 +11,7 @@ How to setup all up:
 ./setup.sh [flags ...] [categories ...]
 ```
 
-Documentation on usage can be found inside [`setup.sh`](setup.sh) file at line ~190.  
+Documentation on usage can be found inside [`setup.sh`](setup.sh) file at line ~208.  
 ___
 
 
