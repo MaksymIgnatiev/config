@@ -221,6 +221,12 @@ manage_symlink() {
 
 # Per-category setup
 
+CATEGORY="dunst"
+
+# Fastfetch
+manage_symlink ./dunst/dunstrc $CONFIG_DIR/dunst/dunstrc
+
+
 CATEGORY="fastfetch"
 
 # Fastfetch
@@ -234,6 +240,8 @@ CATEGORY="i3"
 manage_symlink ./i3/config $CONFIG_DIR/i3/config
 manage_symlink ./i3/scripts/set_background.sh $CONFIG_DIR/i3/scripts/set_background.sh
 manage_symlink ./i3/scripts/operate_on_current_screen.sh $CONFIG_DIR/i3/scripts/operate_on_current_screen.sh
+manage_symlink ./i3/scripts/record.sh $CONFIG_DIR/i3/scripts/record.sh
+manage_symlink ./i3/scripts/configure_touchpad.sh $CONFIG_DIR/i3/scripts/configure_touchpad.sh
 
 
 CATEGORY="kitty"
@@ -249,6 +257,7 @@ manage_symlink ./polybar/config.ini $CONFIG_DIR/polybar/config.ini
 manage_symlink ./polybar/scripts/launch_polybar.sh $CONFIG_DIR/polybar/scripts/launch_polybar.sh
 manage_symlink ./polybar/scripts/show-wifi.sh $CONFIG_DIR/polybar/scripts/show-wifi.sh
 manage_symlink ./polybar/scripts/show-memory.sh $CONFIG_DIR/polybar/scripts/show-memory.sh
+manage_symlink ./polybar/scripts/show_extra_info.sh $CONFIG_DIR/polybar/scripts/show_extra_info.sh
 
 
 CATEGORY="rofi"
@@ -288,6 +297,8 @@ ZSHC="$CONFIG_DIR/zsh"
 setup_script zsh && ./.setup/zsh.sh $SETUP_QUIET
 
 # Zsh configuration
+
+# ~/.zprofile redirects zsh configuration to the `$XDG_CONFIG_HOME` / `$HOME/.config/` directory (to not mess up the home)
 manage_symlink ./zsh/.zprofile      $HOME/.zprofile
 manage_symlink ./zsh/.zshrc         $ZSHC/.zshrc
 manage_symlink ./zsh/.zshenv        $ZSHC/.zshenv
