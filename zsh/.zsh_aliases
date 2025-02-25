@@ -21,7 +21,7 @@ alias nv="nvim"
 alias pm="pacman"
 alias c="clear"
 alias tmuxc="tmux save-buffer - | xsel -ib"
-alias nvhist="(cd $config/zsh && nv +G .zsh_history)"
+alias nvhist="(cd $config/zsh && nv + .zsh_history)"
 
 # Configurations
 alias nvimconf="(nvdir && nv $config/nvim/init.lua)"
