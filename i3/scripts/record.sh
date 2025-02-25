@@ -5,6 +5,8 @@
 # Path to save all recordings
 SAVE_PATH="$HOME/Videos/ffmpeg/"
 
+[ -d "$SAVE_PATH" ] || mkdir -p "$SAVE_PATH"
+
 # %Y = full year (e.g. 2025)
 # %m = month (e.g. 06)
 # %d = day (e.g. 12)
@@ -70,21 +72,23 @@ record() {
 	if is_tty; then
 		# Test that given filename is valid
 		echo "$1" | grep -q "^\.\.\?$" && echo "File name is a directory ($1)" && exit 0
-		! echo "$1" | grep -q "^[a-zA-Z0-9\_\.\-]\+$" || echo "File name doesn't contain any valid name" && exit 0
-		! echo "$1" | grep "\.[a-zA-Z0-9]\+$" && echo "File name doesn't contain any extension" && exit 0
+		! echo "$1" | grep -q "^[a-zA-Z0-9\_\.\-]\+$" && echo "File name doesn't contain any valid name" && exit 0
+		! echo "$1" | grep -q "\.[a-zA-Z0-9]\+$" && echo "File name doesn't contain any extension" && exit 0
+
 		# Get file extension
 		local ext=$(echo "$1" | sed 's/^.*\.//')
 
 		test_extension "$ext"
 
-		FILENAME="$2"
+		FILENAME="$1"
 	else FILENAME="$(date "+$FILENAME_FORMAT")" ; fi
 
 	# Get rectangular area coordinates to record
 	local format=$(slop -f '%x %y %w %h')
+
 	# If something went wrong (e.g. canceled)
 	[ "$format" = "" ] && exit 0
-	exit
+
 	# Create variables from given values
 	local f=$(mktemp)
 	echo $format > $f
@@ -136,4 +140,16 @@ end() {
 }
 
 
-([ -f /tmp/ffmpeg_recordings/pid ] && end $@ && exit) || record $@
+{
+	[ -f /tmp/ffmpeg_recordings/pid ] && [ -f /tmp/ffmpeg_recordings/filename ] && end "$@" && exit
+
+	# If something fails, try to stop the process and cleanup the files
+	(
+		[ -f /tmp/ffmpeg_recordings/pid ] && kill $(cat /tmp/ffmpeg_recordings/pid) && rm /tmp/ffmpeg_recordings/pid
+		[ -f /tmp/ffmpeg_recordings/filename ] && rm /tmp/ffmpeg_recordings/filename
+	) >/dev/null 2>&1
+
+	send_polybar_signal
+	
+	false
+} || record "$@"

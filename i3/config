@@ -58,7 +58,6 @@ exec_always --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id xset r rate 200 55
 exec_always --no-startup-id setxkbmap -option ctrl:nocaps
 exec_always --no-startup-id ~/.config/i3/scripts/configure_touchpad.sh
-# exec_always --no-startup-id xinput set-prop 11 "libinput Tapping Enabled" 1
 
 # Set <Alt> + <Shift> to cycle through keyboard layouts 
 exec_always --no-startup-id setxkbmap -layout us,se,ru -option grp:alt_shift_toggle
