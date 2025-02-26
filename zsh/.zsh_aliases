@@ -18,6 +18,8 @@ alias ll="exa -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:
 alias la="exa -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
 
 alias nv="nvim"
+alias n="nv"
+alias v="vim"
 alias pm="pacman"
 alias c="clear"
 alias tmuxc="tmux save-buffer - | xsel -ib"
