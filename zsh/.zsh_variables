@@ -1,6 +1,6 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
-export BROWSER="librewolf"
+export BROWSER="zzzfm"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export BUN_INSTALL="$HOME/.bun"
@@ -18,8 +18,9 @@ export NVM_DIR="$HOME/.nvm"
 export GTK_THEME=Breeze-Dark
 # export XCURSOR_THEME=Breeze-Dark
 # export QT_QPA_PLATFORMTHEME=qt6ct
-export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=gtk
 
-export XDG_CURRENT_DESKTOP=KDE
+export XDG_CURRENT_DESKTOP="i3"
+export FILE_BROWSER=zzzfm
 
 export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'
