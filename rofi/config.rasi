@@ -1,5 +1,6 @@
 configuration {
     modi: "run,window,combi,filebrowser";
+	matching: "fuzzy";
     icon-theme: "Oranchelo";
     show-icons: true;
     terminal: "kitty";
