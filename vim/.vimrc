@@ -10,6 +10,17 @@ set smartcase
 set signcolumn=yes
 let mapleader = " "
 
+let s:config_dir = $HOME . ".config/vim/config"
+let s:file = ""
+
+for file in split(glob(s:config_dir . "/*.vim"), "\n")
+    execute 'source' s:file
+endfor
+
+unlet s:config_dir
+unlet s:file
+
+
 " If plug is not installed - don't throw an error
 try
 
@@ -90,4 +101,44 @@ inoremap <expr> <C-y> coc#pum#visible() ? coc#pum#confirm() : "<C-y>"
 " highlight GitSignsAddLn   guibg=#003300
 " highlight GitSignsChangeLn guibg=#333300
 " highlight GitSignsDeleteLn guibg=#330000
+
+" Set a highlight group with optional colors and GUI attributes
+" For any optional value that needs to be missing - use `''`
+" @param {string} group - The highlight group name
+" @param {string} [fg] - Foreground color (optional)
+" @param {string} [bg] - Background color (optional)
+" @param {string} [gui] - GUI attributes like bold, italic, underline (optional, listed coma separated)
+function! SetHighlight(group, fg, bg, gui) abort
+    let l:cmd = 'highlight ' . a:group
+
+    if !empty(a:fg)
+        let l:cmd .= ' guifg=' . a:fg
+    endif
+
+    if !empty(a:bg)
+        let l:cmd .= ' guibg=' . a:bg
+    endif
+
+    if !empty(a:gui)
+        let l:cmd .= ' gui=' . a:gui
+    endif
+
+    execute l:cmd
+endfunction
+
+
+
+
+
+" call SetHighlight('GitSignsAdd'      , '#00FF00')
+" call SetHighlight('GitSignsChange'   , '#FFFF00')
+" call SetHighlight('GitSignsDelete'   , '#FF0000')
+" call SetHighlight('GitSignsAddNr'    , '#00FF00')
+" call SetHighlight('GitSignsChangeNr' , '#FFFF00')
+" call SetHighlight('GitSignsDeleteNr' , '#FF0000')
+" call SetHighlight('GitSignsAddLn'    ,  '', '#003300')
+" call SetHighlight('GitSignsChangeLn' ,  '', '#333300')
+" call SetHighlight('GitSignsDeleteLn' ,  '', '#330000')
+
+call SetHighlight('Normal' , '#AAFFAA', '#001100', '')
 
