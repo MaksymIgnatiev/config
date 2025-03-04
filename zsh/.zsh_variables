@@ -4,6 +4,7 @@ export BROWSER="zzzfm"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export BUN_INSTALL="$HOME/.bun"
+export NVM_DIR="$HOME/.nvm"
 
 # need for aliases
 export config=~/.config
@@ -14,11 +15,11 @@ export config=~/.config
 	# otherwise
 	export TERM="xterm-kitty"
 
-export NVM_DIR="$HOME/.nvm"
 export GTK_THEME=Breeze-Dark
-# export XCURSOR_THEME=Breeze-Dark
-# export QT_QPA_PLATFORMTHEME=qt6ct
-export QT_QPA_PLATFORMTHEME=gtk
+export XCURSOR_THEME=breeze_cursors
+export QT_STYLE_OVERRIDE=Breeze
+export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=qt6ct
 
 export XDG_CURRENT_DESKTOP="i3"
 export FILE_BROWSER=zzzfm

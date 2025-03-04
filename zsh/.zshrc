@@ -6,10 +6,20 @@
 bindkey -v # vim my beloved
 export KEYTIMEOUT=1
 
-setopt autocd extendedglob nomatch menucomplete interactive_comments hist_ignore_all_dups 
-setopt append_history inc_append_history share_history
-setopt hist_ignore_dups hist_ignore_all_dups hist_reduce_blanks
-unsetopt BEEP
+setopt SHARE_HISTORY           # Share history between all running zsh sessions
+setopt INC_APPEND_HISTORY      # Add commands to history immediately
+setopt INC_APPEND_HISTORY_TIME # Include timestamp (for better merging)
+setopt HIST_EXPIRE_DUPS_FIRST  # Remove duplicates when trimming history
+setopt HIST_IGNORE_DUPS        # Ignore duplicate consecutive commands
+setopt HIST_IGNORE_ALL_DUPS    # Remove older duplicate commands
+setopt HIST_IGNORE_SPACE       # Ignore commands starting with a space
+setopt HIST_FIND_NO_DUPS       # Avoid duplicate suggestions in search
+setopt HIST_REDUCE_BLANKS      # Remove extra spaces from history
+setopt HIST_VERIFY             # Don't execute on Up-arrow, just show
+setopt APPEND_HISTORY  
+
+setopt autocd extendedglob nomatch menucomplete interactive_comments  
+unsetopt BEEP PIPE_FAIL
 
 autoload -U colors && colors
 
@@ -19,15 +29,13 @@ ZSH="$HOME/.zsh"
 ZDOTDIR="$HOME/.config/zsh"
 
 HISTFILE="$ZDOTDIR/.zsh_history"
-SAVEHIST=10000
+SAVEHIST=32168
 HISTSIZE=32168
 
 autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
-# need fix: failed to load module `zsh/compinit': /usr/lib/zsh/5.9/zsh/compinit.so: cannot open shared object file: No such file or directory
-# zmodload zsh/compinit
 _comp_options+=(globdots)
-
+zmodload zsh/complist
 # 'Ctrl + e' to edit current command in editor (i guess not vscode xd)
 autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
@@ -35,27 +43,21 @@ bindkey '^e' edit-command-line
 # 'Shift + Tab' to select previous item in menu
 bindkey '^[[Z' reverse-menu-complete
 
-# need fix: no such keymap `menuselect'
-# select in menu with vim keys (place this after compinit)
-# bindkey -M menuselect 'h' vi-backward-char
-# bindkey -M menuselect 'j' vi-down-line-or-history
-# bindkey -M menuselect 'k' vi-up-line-or-history
-# bindkey -M menuselect 'l' vi-forward-char
+# Select in menu with vim keys (place this after compinit)
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
 
-# prefix-based history search with up/down arrows
+# Prefix-based history search with up/down arrows
 bindkey '^[[A' history-search-backward # Up arrow
 bindkey '^[[B' history-search-forward  # Down arrow
-# vim alternatives in command mode
+
+# Vim alternatives in command mode
 bindkey -a 'k' history-search-backward
 bindkey -a 'j' history-search-forward
 
-# select in menu with vim keys
-# bindkey -M menuselect 'h' vi-backward-char
-# bindkey -M menuselect 'j' vi-down-line-or-history
-# bindkey -M menuselect 'k' vi-up-line-or-history
-# bindkey -M menuselect 'l' vi-forward-char
-
-
+# Inspired by: 
 lfcd() {
 	tmp=$(mktemp)	
 	lf -last-dir-path=$tmp $@
@@ -64,6 +66,7 @@ lfcd() {
 		rm -f $tmp
 		[ -d $_dir ] && [ $_dir != `pwd` ] && cd $_dir
 	fi
+	true
 }
 
 # 'Ctrl + o' to select a dir with `lf` to cd into it
@@ -74,7 +77,6 @@ source ~/.config/zsh/.zsh_functions
 
 # Path
 source ~/.config/zsh/.zsh_path
-unset add_to_path
 
 # Variables
 source ~/.config/zsh/.zsh_variables

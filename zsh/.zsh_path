@@ -1,14 +1,12 @@
-add_to_path() {
-	[ -d "$1" ] || [ -f "$1" ] && ! echo "$PATH" | grep -qE "(^|:)$1(:|$)" && export PATH="$1:$PATH"
-}
+__add_to_path() { [ -d "$1" ] || [ -f "$1" ] && ! echo "$PATH" | grep -qE "(^|:)$1(:|$)" && export PATH="$1:$PATH" ; }
 
-add_to_path "/usr/sbin/xclip"
-add_to_path "$HOME/scripts/"
-add_to_path "$HOME/.local/bin"
-add_to_path "$HOME/.pyenv/versions/3.12.5/envs/default_3.12/lib/python3.12/site-packages/"
-add_to_path "$HOME/.jsvu"
-add_to_path "$HOME/.jsvu/bin"
-add_to_path "$HOME/.local/bin/"
-add_to_path "$HOME/.cargo/bin"
-add_to_path "$HOME/.bun/bin"
-add_to_path "${PYENV_ROOT:-$HOME/.pyenv}/bin"
+__add_to_path "/usr/sbin/xclip"
+__add_to_path "$HOME/scripts/"
+__add_to_path "$HOME/.local/bin"
+__add_to_path "$HOME/.pyenv/versions/3.12.5/envs/default_3.12/lib/python3.12/site-packages/"
+__add_to_path "$HOME/.jsvu"
+__add_to_path "$HOME/.jsvu/bin"
+__add_to_path "$HOME/.local/bin/"
+__add_to_path "$HOME/.cargo/bin"
+__add_to_path "$HOME/.bun/bin"
+__add_to_path "${PYENV_ROOT:-$HOME/.pyenv}/bin"

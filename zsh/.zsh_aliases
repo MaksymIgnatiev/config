@@ -1,4 +1,4 @@
-# List needed command to run automaticaly with sudo prepended with space
+# List needed command to run automaticaly with sudo. Separate them with space
 require_sudo="pacman"
 
 [ -z $config ] && config="$HOME/.config"
@@ -11,11 +11,13 @@ alias variables="(cd $config/zsh/ && nv $config/zsh/.zsh_variables)"
 alias path="     (cd $config/zsh/ && nv $config/zsh/.zsh_path)"
 alias functions="(cd $config/zsh/ && nv $config/zsh/.zsh_functions)"
 
-alias grep="grep --color=always"
 
-alias ls="exa     --icons --group-directories-first"
-alias ll="exa -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
-alias la="exa -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+# Enhanced versions
+alias grep="grep --color=always"
+alias tree="tree -C" # color: always
+alias ls="eza     --icons --group-directories-first"
+alias ll="eza -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+alias la="eza -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
 
 alias nv="nvim"
 alias n="nv"
@@ -23,18 +25,19 @@ alias v="vim"
 alias pm="pacman"
 alias c="clear"
 alias tmuxc="tmux save-buffer - | xsel -ib"
+# Neovim history
 alias nvhist="(cd $config/zsh && nv + .zsh_history)"
 
 # Configurations
-alias nvimconf="(nvdir && nv $config/nvim/init.lua)"
+alias nvimconf="   (nvdir                 && nv $config/nvim/init.lua)"
 alias nvconf="nvimconf"
-alias tmuxconf="(cd && nv .tmux.conf)"
-alias zshconf="(cd $config/zsh && nv .)"
-alias zshrc="(cd $config/zsh && nv .zshrc)"
-alias p10kconf="nv ~/.p10k.zsh"
-alias i3conf="(cd $config/i3 && nv config)"
-alias i3scripts="(cd $config/i3/scripts && nv .)"
-alias polybarconf="(cd $config/polybar && nv .)"
+alias tmuxconf="   (cd                    && nv .tmux.conf)"
+alias zshconf="    (cd $config/zsh        && nv .)"
+alias zshrc="      (cd $config/zsh        && nv .zshrc)"
+alias p10kconf="   (cd                    && nv .p10k.zsh"
+alias i3conf="     (cd $config/i3         && nv config)"
+alias i3scripts="  (cd $config/i3/scripts && nv .)"
+alias polybarconf="(cd $config/polybar    && nv .)"
 
 # Neovim shortcuts
 alias nvc="nvconf"
