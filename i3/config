@@ -54,7 +54,6 @@ exec --no-startup-id easyeffects --gapplication-service
 
 # Sets the delay and repeat rate for key pressing
 # xset r rate <delay> <rate>
-exec_always --no-startup-id xrdb -merge ~/.Xresources
 exec_always --no-startup-id xset r rate 200 55
 exec_always --no-startup-id setxkbmap -option ctrl:nocaps
 exec_always --no-startup-id ~/.config/i3/scripts/configure_touchpad.sh
@@ -62,6 +61,8 @@ exec_always --no-startup-id ~/.config/i3/scripts/configure_touchpad.sh
 # Set <Alt> + <Shift> to cycle through keyboard layouts 
 exec_always --no-startup-id setxkbmap -layout us,se,ru -option grp:alt_shift_toggle
 # exec_always --no-startup-id xcape -e "Control_L=ISO_Next_Group;Shift_L=ISO_Next_Group"
+
+exec_always --no-startup-id xrdb -merge ~/.Xresources
 
 # launch polybar
 # kill all existing instanses

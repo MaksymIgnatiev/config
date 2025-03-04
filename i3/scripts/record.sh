@@ -4,6 +4,9 @@
 
 # Path to save all recordings
 SAVE_PATH="$HOME/Videos/ffmpeg/"
+TEMP_DIR="/tmp/ffmpeg_recordings/"
+TEMP_PID_NAME="${TEMP_DIR}pid"
+TEMP_FILENAME_NAME="${TEMP_DIR}filename"
 
 [ -d "$SAVE_PATH" ] || mkdir -p "$SAVE_PATH"
 
@@ -15,7 +18,7 @@ SAVE_PATH="$HOME/Videos/ffmpeg/"
 # %S = seconds (e.g. 06)
 FILENAME_FORMAT="%d.%m.%Y_%H:%M:%S.mp4"
 
-# Some nice ANSI escape codes to color the output
+# Some nice ANSI escape codes to color the output (in TTY)
 ESC=$(printf "\033")
 GREEN="$ESC[32m"
 RED="$ESC[31m"
@@ -94,9 +97,15 @@ record() {
 	echo $format > $f
 	read -r X Y W H < "$f"
 	rm -f "$f"
-	
+
+	# Chech for odd
+	W_divisible=$((W % 2))	
+	H_divisible=$((H % 2))	
+	[ "$W_divisible" -eq 1 ] && W=$((W-1))
+	[ "$H_divisible" -eq 1 ] && H=$((H-1))
+
 	# Make sure that ffmpeg temporary directory is available
-	mkdir -p /tmp/ffmpeg_recordings
+	mkdir -p "$TEMP_DIR"
 
 	# Resolve full path
 	local full_path="$SAVE_PATH$FILENAME"
@@ -104,30 +113,45 @@ record() {
 	is_tty && echo "${GREEN}Recording to: $full_path$NC"
 
 	# Start the recording in the background
-	ffmpeg -y -f x11grab -video_size "${W}x${H}" -i "$DISPLAY+$X,$Y" -framerate 60 -c:v libx264 -crf 28 -preset ultrafast "$full_path"  >/dev/null 2>&1 &
-	
+	# -y: yes for any confirmation
+	# -f x11grab: input screen (X11)
+	# -s "${W}x${H}": size (Width x Height)
+	# -framerate 60: FPS (60)
+	# -i "$DISPLAY+$X,$Y": input: display (e.g. :0.0) + offset
+	# -f lavfi -i anullsrc=r=44100:cl=stereo: add silent audio track
+	# -c:v libx264: codec for video: libx264
+	# -crf 28: quality (0 = best, 51 = worst)
+	# -pix_fmt yuv420p 
+	# -c:a aac: codec for audio: aac
+	# -b:a 128k: bitrate for audio: 128k
+	# -shortest: ensure audio doesn't go beyond video duration
+	ffmpeg -y -f x11grab -s "${W}x${H}" -framerate 60 -i "$DISPLAY+$X,$Y" -f lavfi -i anullsrc=r=44100:cl=stereo -c:v libx264 -crf 28 -pix_fmt yuv420p -c:a aac -b:a 128k -shortest "$full_path" >/dev/null 2>&1 &
+
 	# Capture the last job PID and send it to the recording status file
-	echo "$!" > /tmp/ffmpeg_recordings/pid
+	echo "$!" > "$TEMP_PID_NAME"
 
 	# Send full file path to the recording status file
-	echo "$full_path" > /tmp/ffmpeg_recordings/filename
+	echo "$full_path" > "$TEMP_FILENAME_NAME"
 
 	send_polybar_signal
 }
 
 # End the recording ffmpeg process and delete recording status file
-remove_status() { kill $(cat /tmp/ffmpeg_recordings/pid) && rm /tmp/ffmpeg_recordings/pid ; }
+remove_status() { kill $(cat "$TEMP_PID_NAME") && rm "$TEMP_PID_NAME" ; }
+
+# End the recording ffmpeg process and delete recording status file
+remove_status_filename() { kill $(cat "$TEMP_FILENAME_NAME") && rm "$TEMP_FILENAME_NAME" ; }
 
 # End recording
 end() {
 	remove_status >/dev/null 2>&1
-	local filename=$(cat /tmp/ffmpeg_recordings/filename)
+	local filename=$(cat "$TEMP_FILENAME_NAME")
 	local valid_filename=true
 
-	rm /tmp/ffmpeg_recordings/filename >/dev/null 2>&1
+	rm "$TEMP_FILENAME_NAME" >/dev/null 2>&1
 
 	[ -z "$filename" ] && valid_filename=false
-	is_tty && {
+	(is_tty && {
 		[ "$valid_filename" = "true" ] && \
 		echo "Recording saved to: $GREEN$filename$NC" || \
 		echo "${RED}Unable to get filename to save the file$NC"
@@ -135,21 +159,19 @@ end() {
 		[ "$valid_filename" = "true" ] && \
 		notify-send -t 8000 "Screen Recording" "Recording saved to: <span color='#0c0'><b>$filename</b></span>" || \
 		notify-send -t 8000 "Screen Recording" "<span color='red'><b>Unable to get filename to save the file</b></span>"
-	}
+	})
 	send_polybar_signal
 }
 
 
-{
-	[ -f /tmp/ffmpeg_recordings/pid ] && [ -f /tmp/ffmpeg_recordings/filename ] && end "$@" && exit
+[ -f "$TEMP_PID_NAME" ] && [ -f "$TEMP_FILENAME_NAME" ] && end "$@" && exit || {
 
 	# If something fails, try to stop the process and cleanup the files
-	(
-		[ -f /tmp/ffmpeg_recordings/pid ] && kill $(cat /tmp/ffmpeg_recordings/pid) && rm /tmp/ffmpeg_recordings/pid
-		[ -f /tmp/ffmpeg_recordings/filename ] && rm /tmp/ffmpeg_recordings/filename
-	) >/dev/null 2>&1
+	[ -f "$TEMP_PID_NAME" ] && remove_status >/dev/null 2>&1
+	[ -f "$TEMP_FILENAME_NAME" ] && remove_status_filename >/dev/null 2>&1
 
 	send_polybar_signal
-	
 	false
 } || record "$@"
+
+# [ "$exists" -eq 1 ] && record "$@"
