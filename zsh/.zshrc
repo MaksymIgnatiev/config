@@ -36,8 +36,10 @@ autoload -Uz compinit && compinit
 zstyle ':completion:*' menu select
 _comp_options+=(globdots)
 zmodload zsh/complist
+
 # 'Ctrl + e' to edit current command in editor (i guess not vscode xd)
-autoload edit-command-line; zle -N edit-command-line
+autoload edit-command-line
+zle -N edit-command-line
 bindkey '^e' edit-command-line
 
 # 'Shift + Tab' to select previous item in menu
@@ -69,6 +71,10 @@ lfcd() {
 	true
 }
 
+secure_eval() {
+	[ -z "$1" ] && return 1 || type "$1" >/dev/null 2>&1
+}
+
 # 'Ctrl + o' to select a dir with `lf` to cd into it
 bindkey -s '^o' 'lfcd\n'
 
@@ -84,17 +90,19 @@ source ~/.config/zsh/.zsh_variables
 # Aliases
 source ~/.config/zsh/.zsh_aliases
 
-eval "$(zoxide init zsh --cmd cd)"
+secure_eval zoxide && eval "$(zoxide init zsh --cmd cd)"
 
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+secure_eval pyenv && {
+	eval "$(pyenv init --path)"
+	eval "$(pyenv init -)"
+}
 
 # bun completions
 [ -s "/home/arrow_function/.bun/_bun" ] && source "/home/arrow_function/.bun/_bun"
 
-eval  "$(fzf --zsh)"
+secure_eval fzf && eval "$(fzf --zsh)"
 
 secure_source() { [ -f $1 ] && source $1; }
 

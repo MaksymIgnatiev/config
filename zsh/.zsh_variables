@@ -15,6 +15,7 @@ export config=~/.config
 	# otherwise
 	export TERM="xterm-kitty"
 
+export GIT_EDITOR=nvim
 export GTK_THEME=Breeze-Dark
 export XCURSOR_THEME=breeze_cursors
 export QT_STYLE_OVERRIDE=Breeze
@@ -25,3 +26,8 @@ export XDG_CURRENT_DESKTOP="i3"
 export FILE_BROWSER=zzzfm
 
 export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'
+
+export ANDROID_HOME=$HOME/Android/Sdk
+export ANDROID_SDK_ROOT=$ANDROID_HOME
+export NDK_HOME="$HOME/Android/Sdk/ndk/26.1.10909125"
+export ANDROID_NDK_HOME=$NDK_HOME
