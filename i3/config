@@ -107,7 +107,7 @@ bindsym $mod+space exec --no-startup-id rofi -show combi
 bindsym $mod+Tab exec --no-startup-id rofi -show window
 bindsym $mod+p exec --no-startup-id rofi -show filebrowser
 
-bindsym Print exec --no-startup-id flameshot gui 2>&1 >/dev/null 
+bindsym Print exec --no-startup-id flameshot gui >/dev/null 2>&1
 # fallback variant for screenshot if others don't work
 # bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png
 

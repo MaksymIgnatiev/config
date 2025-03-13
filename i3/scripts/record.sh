@@ -125,7 +125,12 @@ record() {
 	# -c:a aac: codec for audio: aac
 	# -b:a 128k: bitrate for audio: 128k
 	# -shortest: ensure audio doesn't go beyond video duration
-	ffmpeg -y -f x11grab -s "${W}x${H}" -framerate 60 -i "$DISPLAY+$X,$Y" -f lavfi -i anullsrc=r=44100:cl=stereo -c:v libx264 -crf 28 -pix_fmt yuv420p -c:a aac -b:a 128k -shortest "$full_path" >/dev/null 2>&1 &
+	ffmpeg -y -f x11grab -s "${W}x${H}" -r 60 -i "$DISPLAY+$X,$Y" \
+		-f lavfi -i anullsrc=r=44100:cl=stereo \
+		-c:v libx264 -preset ultrafast -crf 28 -tune zerolatency \
+		-pix_fmt yuv420p -c:a aac -b:a 128k -shortest \
+		-bufsize 512k -maxrate 8M -threads 2 \
+		"$full_path" >/dev/null 2>&1 &
 
 	# Capture the last job PID and send it to the recording status file
 	echo "$!" > "$TEMP_PID_NAME"
@@ -137,7 +142,12 @@ record() {
 }
 
 # End the recording ffmpeg process and delete recording status file
-remove_status() { kill $(cat "$TEMP_PID_NAME") && rm "$TEMP_PID_NAME" ; }
+remove_status() { 
+	local pid=$(cat "$TEMP_PID_NAME")
+	kill "$pid"
+	wait "$pid"
+	rm "$TEMP_PID_NAME"
+}
 
 # End the recording ffmpeg process and delete recording status file
 remove_status_filename() { kill $(cat "$TEMP_FILENAME_NAME") && rm "$TEMP_FILENAME_NAME" ; }
@@ -145,6 +155,7 @@ remove_status_filename() { kill $(cat "$TEMP_FILENAME_NAME") && rm "$TEMP_FILENA
 # End recording
 end() {
 	remove_status >/dev/null 2>&1
+	sleep .5
 	local filename=$(cat "$TEMP_FILENAME_NAME")
 	local valid_filename=true
 
