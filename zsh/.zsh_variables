@@ -1,6 +1,6 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
-export BROWSER="zzzfm"
+export BROWSER="thunar"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export BUN_INSTALL="$HOME/.bun"
@@ -23,7 +23,7 @@ export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_QPA_PLATFORMTHEME=qt6ct
 
 export XDG_CURRENT_DESKTOP="i3"
-export FILE_BROWSER=zzzfm
+export FILE_BROWSER=thunar
 
 export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'
 
