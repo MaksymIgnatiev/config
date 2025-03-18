@@ -250,6 +250,12 @@ CATEGORY="kitty"
 manage_symlink ./kitty/kitty.conf $CONFIG_DIR/kitty/kitty.conf
 
 
+CATEGORY="picom"
+
+# Picom
+manage_symlink ./picom/picom.conf $CONFIG_DIR/picom.conf
+
+
 CATEGORY="polybar"
 
 # Polybar
