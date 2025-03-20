@@ -1,6 +1,9 @@
 # List needed command to run automaticaly with sudo. Separate them with space
 require_sudo="pacman"
 
+# If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity of usage)
+[ ! $(whoami) = 'root' ] && for cmd in $require_sudo ; do alias $cmd="sudo $cmd"; done
+
 [ -z $config ] && config="$HOME/.config"
 
 alias nvdir="cd $config/nvim"
@@ -13,8 +16,8 @@ alias functions="(cd $config/zsh/ && nv $config/zsh/.zsh_functions)"
 
 
 # Enhanced versions
-alias grep="grep --color=always"
-alias tree="tree -C" # color: always
+alias grepc="grep --color=always"
+alias treec="tree -C" # color: always
 alias ls="eza     --icons --group-directories-first"
 alias ll="eza -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
 alias la="eza -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
@@ -45,7 +48,3 @@ alias nvg="(nvdir && cd lua/global       && nv $config/nvim/lua/global)"
 alias nvp="(nvdir && cd lua/plugins      && nv $config/nvim/lua/plugins)"
 alias nvt="(nvdir && cd lua/global/theme && nv $config/nvim/lua/global/theme)"
 alias nvk="(nvdir && cd lua/global       && nv $config/nvim/lua/global/keymaps.lua)"
-
-
-# If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity of usage)
-[ ! $(whoami) = 'root' ] && for cmd in $require_sudo ; do alias $cmd="sudo $cmd"; done
