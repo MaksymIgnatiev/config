@@ -10,6 +10,9 @@ CYAN="${ESC}[36m"
 GRAY="${ESC}[38;5;245m"
 NC="${ESC}[0m"
 
+warning_color="$YELLOW"
+answer_color="$GREEN"
+
 SETUP_QUIET="false"
 EXTRA="true"
 REMOVE="false"
@@ -138,8 +141,11 @@ setup_script() {
 	return $?
 }
 
-# returns a 0 or 1 return code as indication to allow output extra information (warnings, extra steps)
-extra_info() { [ $EXTRA = "true" ] && return $? ; }
+# Usage:
+# extra_info && echo "Extra info will be shown" || echo "Extra info will not be shown"
+#
+# returns status code `0` if parameters allow to show extra info. Otherwise status code of `1`
+extra_info() { [ $EXTRA = "true" ]; }
 
 # Manage a symlink to a file
 # Depending on flags, it will:
@@ -167,34 +173,37 @@ manage_symlink() {
 
 	[ -L $target ] && other_target=$(readlink $target)
 
+	# Target exists (dir/file/symlink)
 	if [ -e $target ]; then
-		
-		[ $REMOVE = "true" ] && {
 
+		[ $REMOVE = "true" ] && {
 			[ -L $target ] && {
 				[ "$other_target" = $source ] && {
 					rm $target && echo "${GREEN}Removed symlink:$NC $CYAN$target$NC $GRAY->$NC $CYAN$source$NC"
-				} || extra_info && echo "${YELLOW}Link $target points to a different location: $other_target. Skipping...$NC"
-			} || extra_info && echo "${YELLOW}File $target is not a symlink. Skipping...$NC"
+				} || { extra_info && echo "${warning_color}Symlink $CYAN$target$warning_color points to a different location: $CYAN$other_target$warning_color. Skipping...$NC" ; }
+			} || { extra_info && echo "${warning_color}File $target is not a symlink. Skipping...$NC" ; }
 			return 0
 		}
 
 		extra_info || return 0
-
-		answer_options="Replace (y=backup old, n=overwrite) or Skip? [y/n/S]:"
+		
+		local answer_options="y n S"
+		local answer_question="${warning_color}Replace (${answer_color}y${warning_color}=backup old, ${answer_color}n${warning_color}=overwrite) or ${answer_color}S${warning_color}kip? [$(echo "$answer_options" | sed -E "s/([^ ]+)/${answer_color}\1${warning_color}/g; s/ /\\//g")${warning_color}]:"
 
 		[ -L $target ] && {
-			[ "$other_target" != $source ] && printf "${YELLOW}Target $target is a symlink, but points to a different location: $other_target\n$answer_options$NC " || return 0
-		} || printf "${YELLOW}Target already exists: $target\n$answer_options$NC "
+			[ "$other_target" != $source ] && printf "${warning_color}Target $CYAN$target${warning_color} is a symlink, but points to a different location: $other_target\n$answer_question$NC $GREEN" || return 0
+		} || printf "${YELLOW}Target already exists: $target\n$answer_question$NC $GREEN"
 
 		read -r replace
+		printf "$NC"
 		case "$replace" in
 			[Yy] | [Yy][Ee][Ss]) backup_file "$target" && ln -sf "$source" "$target" ;;
-			[Nn] | [Nn][Oo]) ln -sf "$source" "$target" ;;
+			[Nn] | [Nn][Oo]) ln -sf "$source" "$target" && echo "${GREEN}Replaced $CYAN$target$GREEN (symlink) to point to: $CYAN$source$NC" ;;
 			[Ss] | [Ss][Kk][Ii][Pp] | "") echo "Skipped: $target" ;;
 			*) echo "Invalid answer. Skipping..." ;;
 		esac
 	else
+		# Target doesn't exist
 		[ $REMOVE = "true" ] && {
 			extra_info && echo "${YELLOW}Could't find the destination to unlink: $target$NC"
 			return 0
@@ -209,8 +218,9 @@ manage_symlink() {
 #
 # 2. Add custom setup scripts before managing files with the following syntax:
 # ```sh
-# setup_script category_name && path/to/setup/script
+# setup_script category_name && path/to/setup/script $SETUP_QUIET $FORCE_SETUP
 # ```
+# Note! Pay attension to the $SETUP_QUIET and $FORCE_SETUP ad the end. This are arguments that indicates quiet and forced setup respectfully
 #
 # 3. Add symlink managing with the following syntax:
 # ```sh
