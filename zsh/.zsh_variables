@@ -17,12 +17,13 @@ export config=~/.config
 
 export GIT_EDITOR=nvim
 export GTK_THEME=Breeze-Dark
+export GTK_USE_PORTAL=1
 export XCURSOR_THEME=breeze_cursors
 export QT_STYLE_OVERRIDE=Breeze
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_QPA_PLATFORMTHEME=qt6ct
 
-export XDG_CURRENT_DESKTOP="i3"
+export XDG_CURRENT_DESKTOP=i3
 export FILE_BROWSER=thunar
 
 export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'
@@ -31,3 +32,5 @@ export ANDROID_HOME=$HOME/Android/Sdk
 export ANDROID_SDK_ROOT=$ANDROID_HOME
 export NDK_HOME="$HOME/Android/Sdk/ndk/26.1.10909125"
 export ANDROID_NDK_HOME=$NDK_HOME
+
+export PGDATA="/var/lib/postgres/data"
