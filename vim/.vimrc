@@ -26,7 +26,6 @@ try
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'neoclide/coc.nvim', { 'branch': 'release'}
 Plug 'vim-airline/vim-airline'
 Plug 'scrooloose/nerdtree'
 Plug 'ctrlpvim/ctrlp.vim'
@@ -81,12 +80,7 @@ vnoremap K :m '<-2<CR>gv=gv
 
 
 " Insert mode
-inoremap <expr> <C-Space> coc#refresh()
 inoremap <C-c> <Esc>
-inoremap <expr> <Tab> coc#pum#visible() ? coc#pum#next(1) : "<Tab>"
-inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "<S-Tab>"
-inoremap <expr> <CR> coc#pum#visible() ? coc#pum#confirm() : "<CR>"
-inoremap <expr> <C-y> coc#pum#visible() ? coc#pum#confirm() : "<C-y>"
 
 
 " Gitsigns
