@@ -127,7 +127,7 @@ record() {
 	# -shortest: ensure audio doesn't go beyond video duration
 	ffmpeg -y -f x11grab -s "${W}x${H}" -r 60 -i "$DISPLAY+$X,$Y" \
 		-f lavfi -i anullsrc=r=44100:cl=stereo \
-		-c:v libx264 -preset ultrafast -crf 28 -tune zerolatency \
+		-c:v libx264 -preset fast -crf 28 -tune zerolatency \
 		-pix_fmt yuv420p -c:a aac -b:a 128k -shortest \
 		-bufsize 512k -maxrate 8M -threads 2 \
 		"$full_path" >/dev/null 2>&1 &
