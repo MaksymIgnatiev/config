@@ -36,7 +36,7 @@ STATE=$(cat "$STATE_FILE")
     echo "$STATE" > "$STATE_FILE"
 }
 
-hex() { [ $USE_HEX = "true" ] && return $? ; }
+hex() { [ $USE_HEX = "true" ] ; }
 
 SSID=$(iwgetid -r)
 IP=$(ip -4 addr show wlan0 | awk '/inet / {print $2}' | cut -d'/' -f1)
