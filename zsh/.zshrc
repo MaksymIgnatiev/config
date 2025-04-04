@@ -1,10 +1,31 @@
-# some arrows...
-# '➜ '
-# ← ↑ → ↓ ↔ ↕ ↖ ↗ ↘ ↙ ↚ ↛ ↜ ↝ ↞ ↟ ↠ ↡ ↢ ↣ ↤ ↥ ↦ ↧ ↨ ↩ ↪ ↫ ↬ ↭ ↮ ↯ ↰ ↱ ↲ ↳ ↴ ↵ ↶ ↷ ↸ ↹ ↺ ↻ ↼ ↽ ↾ ↿ ⇀ ⇁ ⇂ ⇃ ⇄ ⇅ ⇆ ⇇ ⇈ ⇉ ⇊ ⇋ ⇌ ⇍ ⇎ ⇏ ⇐ ⇑ ⇒ ⇓ ⇔ ⇕ ⇖ ⇗ ⇘ ⇙ ⇚ ⇛ ⇜ ⇝ ⇞ ⇟ ⇠ ⇡ ⇢ ⇣ ⇤ ⇥ ⇦ ⇧ ⇨ ⇩ ⇪
-# => <=
+# Some nice arrows 
+# (better with nerd font of font that supports icons and ligatures)
+# ➜ ← ↑ → ↓ ↔ ↕ ↖ ↗ ↘ ↙ ↚ ↛ ↜ ↝ ↞ ↟ ↠ ↡ ↢ ↣ ↤ ↥ ↦ 
+# ↧ ↨ ↩ ↪ ↫ ↬ ↭ ↮ ↯ ↰ ↱ ↲ ↳ ↴ ↵ ↶ ↷ ↸ ↹ ↺ ↻ ↼ ↽ ↾ 
+# ↿ ⇀ ⇁ ⇂ ⇃ ⇄ ⇅ ⇆ ⇇ ⇈ ⇉ ⇊ ⇋ ⇌ ⇍ ⇎ ⇏ ⇐ ⇑ ⇒ ⇓ ⇔ ⇕ ⇖ 
+# ⇗ ⇘ ⇙ ⇚ ⇛ ⇜ ⇝ ⇞ ⇟ ⇠ ⇡ ⇢ ⇣ ⇤ ⇥ ⇦ ⇧ ⇨ ⇩ ⇪
 
-bindkey -v # vim my beloved
+# Basic setup ==============================================
+
+# Zsh home directory
+ZSH="$HOME/.zsh"
+
+# Where all zsh configuration will be
+ZDOTDIR="$HOME/.config/zsh"
+
+# Where history file will be located
+HISTFILE="$ZDOTDIR/.zsh_history"
+SAVEHIST=32168
+HISTSIZE=32168
+
 export KEYTIMEOUT=1
+
+
+# Enable vi-like mode
+bindkey -v
+
+
+# Setting usefull options ==================================
 
 setopt SHARE_HISTORY           # Share history between all running zsh sessions
 setopt INC_APPEND_HISTORY      # Add commands to history immediately
@@ -19,27 +40,33 @@ setopt HIST_VERIFY             # Don't execute on Up-arrow, just show
 setopt APPEND_HISTORY  
 
 setopt autocd extendedglob nomatch menucomplete interactive_comments  
-unsetopt BEEP PIPE_FAIL
+
+
+# Unsetting annoying options ===============================
+
+unsetopt beep pipefail
+
+
+# Loading modules and enabling core functionality ==========
 
 autoload -U colors && colors
-
-ZSH="$HOME/.zsh"
-
-# Where all zsh configuration will be
-ZDOTDIR="$HOME/.config/zsh"
-
-HISTFILE="$ZDOTDIR/.zsh_history"
-SAVEHIST=32168
-HISTSIZE=32168
-
 autoload -Uz compinit && compinit
+autoload -Uz history-search-end
+autoload edit-command-line
+
 zstyle ':completion:*' menu select
 _comp_options+=(globdots)
 zmodload zsh/complist
 
-# 'Ctrl + e' to edit current command in editor (i guess not vscode xd)
-autoload edit-command-line
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+
 zle -N edit-command-line
+
+
+# Usefull keybinds =========================================
+
+# 'Ctrl + e' to edit current command in $EDITOR editor
 bindkey '^e' edit-command-line
 
 # 'Shift + Tab' to select previous item in menu
@@ -51,61 +78,91 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
-# Prefix-based history search with up/down arrows
-bindkey '^[[A' history-search-backward # Up arrow
-bindkey '^[[B' history-search-forward  # Down arrow
-
 # Vim alternatives in command mode
-bindkey -a 'k' history-search-backward
-bindkey -a 'j' history-search-forward
+bindkey -a 'k' history-beginning-search-backward-end
+bindkey -a 'j' history-beginning-search-forward-end
 
-# Inspired by: 
+# Up/Down arrow to cycle through history 
+# based on typed in prefix: vi-like command mode
+bindkey -M vicmd '^[[A' history-beginning-search-backward-end \
+                 '^[OA' history-beginning-search-backward-end \
+                 '^[[B' history-beginning-search-forward-end \
+                 '^[OB' history-beginning-search-forward-end
+
+# Up/Down arrow to cycle through history 
+# based on typed in prefix: vi-like insert mode
+bindkey -M viins '^[[A' history-beginning-search-backward-end \
+                 '^[OA' history-beginning-search-backward-end \
+                 '^[[B' history-beginning-search-forward-end \
+                 '^[OB' history-beginning-search-forward-end
+
+
+# Inspired by: https://www.youtube.com/watch?v=eLEo4OQ-cuQ
 lfcd() {
-	tmp=$(mktemp)	
-	lf -last-dir-path=$tmp $@
-	if [ -f $tmp ]; then
-		_dir=$(cat $tmp)
-		rm -f $tmp
-		[ -d $_dir ] && [ $_dir != `pwd` ] && cd $_dir
+	local tmp=$(mktemp)
+	lf -last-dir-path=$tmp "$@"
+	if [ -f "$tmp" ]; then
+		local _dir=$(cat $tmp)
+		rm -f "$tmp"
+		[ -d "$_dir" ] && [ "$_dir" != "`pwd`" ] && cd "$_dir"
 	fi
 	true
-}
-
-secure_eval() {
-	[ -z "$1" ] && return 1 || type "$1" >/dev/null 2>&1
 }
 
 # 'Ctrl + o' to select a dir with `lf` to cd into it
 bindkey -s '^o' 'lfcd\n'
 
-# Load all functions in global view of the shell
-source ~/.config/zsh/.zsh_functions
 
-# Path
-source ~/.config/zsh/.zsh_path
+# Helper functions =========================================
 
-# Variables
-source ~/.config/zsh/.zsh_variables
+# Checks if the given file exists
+exists() { [ -f "$1" -a -s "$1" ] ; }
 
-# Aliases
-source ~/.config/zsh/.zsh_aliases
+# Usage:
+# secure_eval executable_name && eval "$(evaluation code)"
+secure_eval() { [ -z "$1" ] && return 1 || type "$1" >/dev/null 2>&1 ; }
 
+# Usage:
+# secure_source path/to/source/file
+secure_source() { exists "$1" && \. "$1" ; }
+
+
+# Custom config ============================================
+
+# Load all functions into the global scope of the shell
+secure_source "$HOME/.config/zsh/.zsh_functions"
+
+# Populate the $PATH env "variable"
+secure_source "$HOME/.config/zsh/.zsh_path"
+
+# Set "variables"
+secure_source "$HOME/.config/zsh/.zsh_variables"
+
+# Set "aliases"
+secure_source "$HOME/.config/zsh/.zsh_aliases"
+
+
+# Evaluation ===============================================
+
+# zoxide initialization and completions (alias: cd)
 secure_eval zoxide && eval "$(zoxide init zsh --cmd cd)"
 
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-secure_eval pyenv && {
-	eval "$(pyenv init --path)"
-	eval "$(pyenv init -)"
-}
-
-# bun completions
-[ -s "/home/arrow_function/.bun/_bun" ] && source "/home/arrow_function/.bun/_bun"
-
+# fzf initialization and completions
 secure_eval fzf && eval "$(fzf --zsh)"
 
-secure_source() { [ -f $1 ] && source $1; }
+# uv completions
+secure_eval uv && eval "$(uv generate-shell-completion zsh)"
 
+
+# Sourcing =================================================
+
+# nvm + nvm completions
+secure_source "$NVM_DIR/nvm.sh"
+
+# bun completions
+secure_source "$HOME/.bun/_bun"
+
+# plugins
 secure_source "$HOME/.p10k.zsh"
 secure_source "$ZSH/powerlevel10k/powerlevel10k.zsh-theme"
 secure_source "$ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
