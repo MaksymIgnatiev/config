@@ -329,4 +329,4 @@ manage_symlink ./zsh/.p10k.zsh      $HOME/.p10k.zsh
 # Cleanup
 unset print_help manage_symlink resolve_path category_enabled parse_arg check_and_create_dir backup_file ZSHC SETUP_QUIET EXTRA REMOVE DIRS CATEGORY CATEGORY_ALL CATEGORY_TRUE category_enabled extra_info CATEGORY_EXCLUDE
 
-exit 0
+true
