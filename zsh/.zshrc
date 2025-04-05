@@ -49,6 +49,9 @@ unsetopt beep pipefail
 
 # Loading modules and enabling core functionality ==========
 
+# Answer that helped to resolve issue with prefix search in history
+# https://superuser.com/questions/1357131/zsh-in-vi-mode-but-using-arrow-keys-to-search-history
+
 autoload -U colors && colors
 autoload -Uz compinit && compinit
 autoload -Uz history-search-end
