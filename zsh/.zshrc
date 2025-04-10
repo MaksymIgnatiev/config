@@ -165,9 +165,11 @@ secure_source "$NVM_DIR/nvm.sh"
 # bun completions
 secure_source "$HOME/.bun/_bun"
 
+# ghcup setup
+secure_source "/home/arrow_function/.ghcup/env"
+
 # plugins
 secure_source "$HOME/.p10k.zsh"
 secure_source "$ZSH/powerlevel10k/powerlevel10k.zsh-theme"
 secure_source "$ZSH/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 secure_source "$ZSH/zsh-autosuggestions/zsh-autosuggestions.zsh"
-
