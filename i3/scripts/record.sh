@@ -4,9 +4,9 @@
 
 # Path to save all recordings
 SAVE_PATH="$HOME/Videos/ffmpeg/"
-TEMP_DIR="/tmp/ffmpeg_recordings/"
-TEMP_PID_NAME="${TEMP_DIR}pid"
-TEMP_FILENAME_NAME="${TEMP_DIR}filename"
+TEMP_DIR="/tmp/ffmpeg_recordings"
+TEMP_PID_NAME="$TEMP_DIR/pid"
+TEMP_FILENAME_NAME="$TEMP_DIR/filename"
 
 [ -d "$SAVE_PATH" ] || mkdir -p "$SAVE_PATH"
 
@@ -59,10 +59,10 @@ print_help() {
 # Is running inside tty (interactive shell or not)
 is_tty() { env | grep -q "^WINDOWID=" ; }
 
-ext_doesnt_exist() { echo "${RED}ffmpeg doesn't support '$ext' extension$NC" && exit 0 ; }
+ext_doesnt_exist() { echo "${RED}ffmpeg doesn't support '$1' extension$NC" && exit 0 ; }
 
 # Test if this extension is valid
-test_extension() { ffmpeg -muxers 2>&1 | awk '{print $2}' | grep -qw "$1" || ext_doesnt_exist ; }
+test_extension() { ffmpeg -muxers 2>&1 | awk '{print $2}' | grep -qw "$1" || ext_doesnt_exist "$1" ; }
 
 # Send signal to polybar to update the bar
 send_polybar_signal() { type polybar-msg >/dev/null 2>&1 && polybar-msg action '#extra_info.hook.0' >/dev/null 2>&1 ; }
@@ -125,11 +125,12 @@ record() {
 	# -c:a aac: codec for audio: aac
 	# -b:a 128k: bitrate for audio: 128k
 	# -shortest: ensure audio doesn't go beyond video duration
-	ffmpeg -y -f x11grab -s "${W}x${H}" -r 60 -i "$DISPLAY+$X,$Y" \
+	ffmpeg -y \
+		-f x11grab -s "${W}x${H}" -framerate 60 -i "$DISPLAY+$X,$Y" \
 		-f lavfi -i anullsrc=r=44100:cl=stereo \
-		-c:v libx264 -preset fast -crf 28 -tune zerolatency \
+		-x264-params "nal-hrd=cbr:force-cfr=1" -vsync 1 \
+		-c:v libx264 -crf 28 -tune zerolatency \
 		-pix_fmt yuv420p -c:a aac -b:a 128k -shortest \
-		-bufsize 512k -maxrate 8M -threads 2 \
 		"$full_path" >/dev/null 2>&1 &
 
 	# Capture the last job PID and send it to the recording status file
@@ -154,7 +155,7 @@ remove_status_filename() { kill $(cat "$TEMP_FILENAME_NAME") && rm "$TEMP_FILENA
 
 # End recording
 end() {
-	remove_status >/dev/null 2>&1
+	remove_status >/dev/null 2>&1 || return 1
 	sleep .5
 	local filename=$(cat "$TEMP_FILENAME_NAME")
 	local valid_filename=true
@@ -172,17 +173,20 @@ end() {
 		notify-send -t 8000 "Screen Recording" "<span color='red'><b>Unable to get filename to save the file</b></span>"
 	})
 	send_polybar_signal
+	true
 }
 
 
-[ -f "$TEMP_PID_NAME" ] && [ -f "$TEMP_FILENAME_NAME" ] && end "$@" && exit || {
+{ [ -f "$TEMP_PID_NAME" ] && [ -f "$TEMP_FILENAME_NAME" ] && end "$@" && exit ; } || \
+	{
 
-	# If something fails, try to stop the process and cleanup the files
+	# If ther's no current recordings,
+	# or one of the files is missing,
+	# or something went wrong,
+	# try to stop the process and cleanup the files
 	[ -f "$TEMP_PID_NAME" ] && remove_status >/dev/null 2>&1
 	[ -f "$TEMP_FILENAME_NAME" ] && remove_status_filename >/dev/null 2>&1
 
 	send_polybar_signal
-	false
-} || record "$@"
-
-# [ "$exists" -eq 1 ] && record "$@"
+	record "$@"
+}
