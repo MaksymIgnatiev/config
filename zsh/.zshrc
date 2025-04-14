@@ -81,7 +81,7 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
-# Vim alternatives in command mode
+# Vim-like arrow up/down to search history (with prefix)
 bindkey -a 'k' history-beginning-search-backward-end
 bindkey -a 'j' history-beginning-search-forward-end
 
