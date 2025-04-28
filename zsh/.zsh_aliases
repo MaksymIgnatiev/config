@@ -2,7 +2,7 @@
 require_sudo="pacman"
 
 # If user is not root - apply alias for needed comands with "sudo " prefix (just for simplisity of usage)
-[ ! $(whoami) = 'root' ] && for cmd in $require_sudo ; do alias $cmd="sudo $cmd"; done
+[ ! $(whoami) = 'root' ] && for cmd in $require_sudo; do alias $cmd="sudo $cmd"; done
 
 [ -z $config ] && config="$HOME/.config"
 
@@ -18,9 +18,9 @@ alias functions="(cd $config/zsh/ && nv $config/zsh/.zsh_functions)"
 # Enhanced versions
 alias grepc="grep --color=always"
 alias treec="tree -C" # color: always
-alias ls="eza     --icons --group-directories-first"
-alias ll="eza -l  --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
-alias la="eza -la --icons --group-directories-first --time-style=\"+%d.%m.%Y %H:%M\""
+alias ls="eza     --icons --group-directories-first --show-symlinks"
+alias ll="eza -l  --icons --group-directories-first --show-symlinks --time-style=\"+%d.%m.%Y %H:%M\""
+alias la="eza -la --icons --group-directories-first --show-symlinks --time-style=\"+%d.%m.%Y %H:%M\""
 
 alias nv="nvim"
 alias n="nv"
