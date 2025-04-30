@@ -44,7 +44,8 @@ alias polybarconf="(cd $config/polybar    && nv .)"
 
 # Neovim shortcuts
 alias nvc="nvconf"
-alias nvg="(nvdir && cd lua/global       && nv $config/nvim/lua/global)"
-alias nvp="(nvdir && cd lua/plugins      && nv $config/nvim/lua/plugins)"
-alias nvt="(nvdir && cd lua/global/theme && nv $config/nvim/lua/global/theme)"
-alias nvk="(nvdir && cd lua/global       && nv $config/nvim/lua/global/keymaps.lua)"
+alias nvg="(nvdir   && cd lua/global       && nv $config/nvim/lua/global)"
+alias nvp="(nvdir   && cd lua/plugins      && nv $config/nvim/lua/plugins)"
+alias nvt="(nvdir   && cd lua/global/theme && nv $config/nvim/lua/global/theme)"
+alias nvk="(nvdir   && cd lua/global       && nv $config/nvim/lua/global/keymaps.lua)"
+alias nvftp="(nvdir && cd ftplugin         && nv .)"
