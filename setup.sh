@@ -13,27 +13,33 @@ NC="${ESC}[0m"
 warning_color="$YELLOW"
 answer_color="$GREEN"
 
-SETUP_QUIET="false"
-EXTRA="true"
-REMOVE="false"
-FORCE_SETUP="false"
+# Different parameters for the execution time (will be overridden by flags)
+SETUP_QUIET=false
+EXTRA=true
+REMOVE=false
+SETUP_FORCE=false
+CHECK=false
 
 # Required tools for this script to work properly
 REQUIRED_TOOLS="realpath readlink"
 
-# who knows where this config was pulled from, therefore, check for git
+# who knows where this config was pulled from, therefore, check for additional tools that may be helpful
 OPTIONAL_TOOLS="git curl wget"
 
 # List of all categories that needs to be excluded from being invoked (separated by space)
 CATEGORY_EXCLUDE="pictures"
-CATEGORY_EXCLUDE=""
 
 DIRS=$(find . -maxdepth 1 -type d ! -name '.*' | xargs -n 1 basename | sort | tr '\n' ' ') 
 CATEGORY_EXCLUDE=$(echo $CATEGORY_EXCLUDE | xargs)
+
 [ "$CATEGORY_EXCLUDE" != "" ] && DIRS=$(echo $DIRS | sed "s/$(echo $CATEGORY_EXCLUDE | sed 's/ \+/\\|/g')//g" )
-CATEGORY_ALL="true"
+
+CATEGORY_ALL=true
 CATEGORY_TRUE=""
 CATEGORY=""
+CURRENT_CATEGORY=""
+CHECK_MESSAGES=""
+ARGS_ERROR=false
 
 
 print_help() {
@@ -41,10 +47,11 @@ print_help() {
 	echo "Setups/removes the config files, optionaly for certain category(-ies) (see ${GREEN}CATEGORY$NC)"
 	echo "FLAGS:"
 	echo "${GREEN}-h, --help$NC        Print this help message"
-	echo "${GREEN}-q, --quiet$NC       Do setup before linking quiet"
+	echo "${GREEN}-c, --check$NC       Check links (print successfull message for every category; warnings for issues that may occur)"
 	echo "${GREEN}-n, --nowarning$NC   Skip files that are already configured (setup), or don't show the warning when trying to remove non-existent file (remove)"
 	echo "${GREEN}-r, --remove$NC      Remove links (for certain category, if needed)"
 	echo "${GREEN}-a, --additional$NC  Perform forced additional setup for needed categories(-ry)"
+	echo "${GREEN}-q, --quiet$NC       Do setup before linking quiet"
 	echo "CATEGORY:"
 
 	for _dir in $DIRS; do printf "${GREEN}$(basename "${_dir%/}")$NC "; done
@@ -54,16 +61,17 @@ print_help() {
 
 parse_arg() {
 	case "$1" in
-		-h | --[Hh][Ee][Ll][Pp]) print_help && exit 0 ;;
-		-q | --[Qq][Uu][Ii][Ee][Tt]) SETUP_QUIET="true" ;;
-		-n | --[Nn][Oo][Ww][Aa][Rr][Nn][Ii][Nn][Gg]) EXTRA="false" ;;
-		-r | --[Rr][Ee][Mm][Oo][Vv][Ee]) REMOVE="true" ;;
-		-a | --[Aa][Dd][Dd][Ii][Tt][Ii][Oo][Nn][Aa][Ll]) FORCE_SETUP="true" ;;
+		-h | --[Hh][Ee][Ll][Pp]) print_help ; exit 0 ;;
+		-c | --[Cc][Hh][Ee][Cc][Kk]) CHECK=true ;;
+		-q | --[Qq][Uu][Ii][Ee][Tt]) SETUP_QUIET=true ;;
+		-n | --[Nn][Oo][Ww][Aa][Rr][Nn][Ii][Nn][Gg]) EXTRA=false ;;
+		-r | --[Rr][Ee][Mm][Oo][Vv][Ee]) REMOVE=true ;;
+		-a | --[Aa][Dd][Dd][Ii][Tt][Ii][Oo][Nn][Aa][Ll]) SETUP_FORCE=true ;;
 		-* | --*) echo "${YELLOW}Unknown flag: '$1'" && exit 0 ;;
 		*) 
 			echo "$DIRS" | grep -q -w "$1" && {
-				CATEGORY_ALL="false" && CATEGORY_TRUE="$CATEGORY_TRUE $1"
-			} || { echo "${YELLOW}Not a category: '$1'$NC" && return 0; }
+				CATEGORY_ALL=false && CATEGORY_TRUE="$CATEGORY_TRUE $1"
+			} || { echo "${YELLOW}Not a category: '$1'$NC" && err=true ; }
 			;;
 	esac
 }
@@ -83,10 +91,13 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+[ "$ARGS_ERROR" = true ] && exit 1
+
 MISSING_REQUIRED_TOOLS=""
 for tool in $REQUIRED_TOOLS; do 
 	command -v $tool >/dev/null 2>&1 || MISSING_REQUIRED_TOOLS="$MISSING_REQUIRED_TOOLS $tool"
 done
+
 [ ${#MISSING_REQUIRED_TOOLS} -ne 0 ] && {
 	echo "${YELLOW}There are some required tools missing:$NC"
 	for tool in $MISSING_REQUIRED_TOOLS; do echo "    - $GREEN$tool$NC"; done
@@ -96,9 +107,9 @@ done
 CONFIG_DIR="${CONFIG:-$XDG_CONFIG_HOME}"
 
 
-[ "$CONFIG_DIR" != "" ] && \
-	([ ! -d "$CONFIG_DIR" ] && echo "${RED}Configuration directory '$CONFIG_DIR' is not a directory.${NC}" && exit 1) || \
-	CONFIG_DIR="$HOME/.config"
+[ "$CONFIG_DIR" != "" ] && {
+	[ ! -d "$CONFIG_DIR" ] && echo "${RED}Configuration directory '$CONFIG_DIR' is not a directory.${NC}" && exit 1
+} || CONFIG_DIR="$HOME/.config"
 
 check_and_create_dir() {
 	[ -z "$1" ] && return 1
@@ -115,14 +126,14 @@ check_and_create_dir() {
 }
 
 backup_file() {
-	target="$1"
+	local target="$1"
 	[ -z "$target" ] && return 1
-	backup_name="${target}_$(date +"%Y.%m.%d_%H:%M:%S").backup"
+	local backup_name="${target}_$(date +"%Y.%m.%d_%H:%M:%S").backup"
 	mv "$target" "$backup_name" && echo "${YELLOW}Backup created: $backup_name$NC"
 }
 
 resolve_path() {
-	input_path="$1"
+	local input_path="$1"
 	[ -z "$input_path" ] && return 1
 	realpath -s "$input_path" 2>/dev/null || return 1
 	return 0
@@ -131,35 +142,65 @@ resolve_path() {
 category_enabled() {
 	[ -z "$1" ] && return 0
 	[ $CATEGORY_ALL = "true" ] || echo "$CATEGORY_TRUE" | grep -q -w "$1"
-	return $?
 }
 
 # Allows or disallows to execute the setup script for specific category based on provided `$CATEGORY` and `$REMOVE`
 setup_script() {
-	[ -z $1 ] && return 1
-	[ $FORCE_SETUP = "true" ] || [ $REMOVE = "false" ] && category_enabled $1 
-	return $?
+	[ -z "$1" ] && return 1
+	[ $SETUP_FORCE = "true" ] || [ $REMOVE = "false" ] && category_enabled $1 
 }
 
 # Usage:
-# extra_info && echo "Extra info will be shown" || echo "Extra info will not be shown"
+# check_link path/to/source path/to/target
 #
-# returns status code `0` if parameters allow to show extra info. Otherwise status code of `1`
+# return code:
+# 1: source or target is empty string (input)
+# 2: target doesn't exist
+# 3: target is not a symlink
+# 4: target points not to a source path
+check_link() {
+	[ -z "$1" ] || [ -z "$2" ] && return 1
+	
+	source="$1"
+	target="$2"
+	
+	{ [ ! -e $target ] && [ ! -L $target ] ; } && return 2
+	[ -L $target ] || return 3
+	other_target=$(readlink $target)
+	[ "$other_target" != $source ] && return 4
+}
+
+print_check_results() {
+	[ -n "$CHECK_MESSAGES" ] && echo "$CHECK_MESSAGES" || echo "${GREEN}All links are fine!$NC"
+}
+
+# Usage:
+# extra_info && echo "Extra info will be shown" || echo "Extra info wont be shown"
+#
+# returns status code `0` if parameters allow to show extra info. Otherwise `1`
 extra_info() { [ $EXTRA = "true" ]; }
 
 # Manage a symlink to a file
+#
 # Depending on flags, it will:
-# - create symlink with asking for a backup
-# - create symlink for needed rest (only those who are not yet linked)
+# - create symlink
 # - remove symlink
-# - remove symlink without warnings for non-existent files
+# - check symlink
+#
+# + additional checks/actions to prevent data loss (flags and warnings will handle everything)
+#
 # Usage:
 # manage_symlink /absolute/path/to/source  /absolute/path/to/destination
 # manage_symlink relative/path/to/source   /absolute/path/to/destination
 # manage_symlink ./relative/path/to/source ./relative/path/to/destination
 # manage_symlink /absolute/path/to/source  relative/path/to/destination
 #
-# Note! When removing link, it performs check on wether file is a link, and points to a specific (given to a function) file in config. So regular files and symlinks that points to a different location will not be removed
+# Note! Each method can be mixed with options via flags, which overrides global variables
+#
+# Note! When creating/removing link, it performs check on whether file is a link, and points to a specific (given to a function) file in config. So original data won't be lost (warnings will show everything needed)
+#
+# If you are not sure what you are doing, run the script with '-c'/'--check' flag to check whether all links are fine (if already configured), or with '-C'/'--check-fs' flag to check whether links will interfer with original data (no data modification at this point. It's totaly safe)
+#
 manage_symlink() {
 	[ $# -lt 2 ] && echo "${RED}manage_symlink$NC: Too few arguments (at: manage_symlink$([ ! -z "$1" ] && echo " $1")). Usage: manage_symlink path/to/source path/to/destination" && return 1
 
@@ -170,6 +211,34 @@ manage_symlink() {
 	[ -z $source ] || [ ! -e $source ] && echo "${RED}Source does not exist: '$source'$NC" && return 1
 	target_dir=$(dirname "$target")
 	check_and_create_dir "$target_dir" || return 1
+
+	[ $CHECK = true ] && {
+		OLD_CATEGORY="$CURRENT_CATEGORY"
+
+		[ -z "$CURRENT_CATEGORY" ] && CURRENT_CATEGORY=$CATEGORY || { 
+			[ $CURRENT_CATEGORY != $CATEGORY ] && {
+				print_check_results
+				echo ""
+				CURRENT_CATEGORY=$CATEGORY  
+			}
+		}
+
+		[ "$OLD_CATEGORY" != $CURRENT_CATEGORY ] && {
+			[ $CATEGORY_ALL = true ] || [ "$(echo $CATEGORY_TRUE | grep -c " ")" -ne 0 ] && echo "${GREEN}==== $CURRENT_CATEGORY ====$NC"
+			CHECK_MESSAGES="" 
+		}
+
+		check_link $source $target
+		local result=$?
+		local check_message=""
+		case "$result" in
+			2) check_message="${YELLOW}Target '$target' doesn't exist" ;;
+			3) check_message="${YELLOW}Target '$target' is not a symlink" ;;
+			4) check_message="${YELLOW}Target '$target' is a symlink, but it points to a different location: $(readlink $target)" ;;
+		esac
+		[ -z "$CHECK_MESSAGES" ] && CHECK_MESSAGES="$check_message" || CHECK_MESSAGES="$CHECK_MESSAGES\n$check_message"
+		return 0
+	}
 
 	[ -L $target ] && other_target=$(readlink $target)
 
@@ -213,23 +282,36 @@ manage_symlink() {
 }
 
 
-# How to use config files and manage them:
+# Documentation on usage.
+#
+# !!! You may want to run script initially with '-h'/'--help' flag to see all options !!!
+#
+# Depending on needs, add appropriate flags to describe needed result.
+#
+#
+# How to manage files:
+#
 # 1. Set $CATEGORY variable to a desired category that will be configured
 #
 # 2. Add custom setup scripts before managing files with the following syntax:
 # ```sh
-# setup_script category_name && path/to/setup/script $SETUP_QUIET $FORCE_SETUP
+# setup_script <category name> && path/to/setup/script $SETUP_QUIET $SETUP_FORCE
 # ```
-# Note! Pay attension to the $SETUP_QUIET and $FORCE_SETUP ad the end. This are arguments that indicates quiet and forced setup respectfully
+# Note! Pay attention to the $SETUP_QUIET and $FORCE_SETUP at the end. These are arguments that indicates quiet and forced setup respectfully
 #
 # 3. Add symlink managing with the following syntax:
 # ```sh
 # manage_symlink path/to/source path/to/destination
 # ```
+# Note! `manage_symlink` is a general purpose shell function which operates on global variables (not environment ones). You can potentially set them to a different values, but the whole point of the managing goes away.
 #
 # 4. Add post setup scripts with the previously shown syntax as in point 2.
+#
+#
+
 
 # Per-category setup
+
 
 CATEGORY="dunst"
 
@@ -241,17 +323,18 @@ CATEGORY="fastfetch"
 
 # Fastfetch
 manage_symlink ./fastfetch/config.jsonc $CONFIG_DIR/fastfetch/config.jsonc
-manage_symlink ./fastfetch/logo.png $CONFIG_DIR/fastfetch/logo.png
+manage_symlink ./fastfetch/logo.png     $CONFIG_DIR/fastfetch/logo.png
 
 
 CATEGORY="i3"
 
 # i3
-manage_symlink ./i3/config $CONFIG_DIR/i3/config
-manage_symlink ./i3/scripts/set_background.sh $CONFIG_DIR/i3/scripts/set_background.sh
+manage_symlink ./i3/config                               $CONFIG_DIR/i3/config
+manage_symlink ./i3/scripts/set_background.sh            $CONFIG_DIR/i3/scripts/set_background.sh
 manage_symlink ./i3/scripts/operate_on_current_screen.sh $CONFIG_DIR/i3/scripts/operate_on_current_screen.sh
-manage_symlink ./i3/scripts/record.sh $CONFIG_DIR/i3/scripts/record.sh
-manage_symlink ./i3/scripts/configure_touchpad.sh $CONFIG_DIR/i3/scripts/configure_touchpad.sh
+manage_symlink ./i3/scripts/record.sh                    $CONFIG_DIR/i3/scripts/record.sh
+manage_symlink ./i3/scripts/configure_touchpad.sh        $CONFIG_DIR/i3/scripts/configure_touchpad.sh
+manage_symlink ./i3/scripts/capture_screen.sh            $CONFIG_DIR/i3/scripts/capture_screen.sh
 
 
 CATEGORY="kitty"
@@ -269,11 +352,12 @@ manage_symlink ./picom/picom.conf $CONFIG_DIR/picom.conf
 CATEGORY="polybar"
 
 # Polybar
-manage_symlink ./polybar/config.ini $CONFIG_DIR/polybar/config.ini
-manage_symlink ./polybar/scripts/launch_polybar.sh $CONFIG_DIR/polybar/scripts/launch_polybar.sh
-manage_symlink ./polybar/scripts/show-wifi.sh $CONFIG_DIR/polybar/scripts/show-wifi.sh
-manage_symlink ./polybar/scripts/show-memory.sh $CONFIG_DIR/polybar/scripts/show-memory.sh
+manage_symlink ./polybar/config.ini                 $CONFIG_DIR/polybar/config.ini
+manage_symlink ./polybar/scripts/launch_polybar.sh  $CONFIG_DIR/polybar/scripts/launch_polybar.sh
+manage_symlink ./polybar/scripts/show-wifi.sh       $CONFIG_DIR/polybar/scripts/show-wifi.sh
+manage_symlink ./polybar/scripts/show-memory.sh     $CONFIG_DIR/polybar/scripts/show-memory.sh
 manage_symlink ./polybar/scripts/show_extra_info.sh $CONFIG_DIR/polybar/scripts/show_extra_info.sh
+manage_symlink ./polybar/scripts/handle-restart.sh	$CONFIG_DIR/polybar/scripts/handle-restart.sh
 
 
 CATEGORY="rofi"
@@ -286,7 +370,7 @@ manage_symlink ./rofi/custom.rasi $CONFIG_DIR/rofi/custom.rasi
 CATEGORY="tmux"
 
 # Tmux configuration
-manage_symlink ./tmux/.tmux.conf $HOME/.tmux.conf
+manage_symlink ./tmux/.tmux.conf       $HOME/.tmux.conf
 manage_symlink ./tmux/clear-or-move.sh $CONFIG_DIR/tmux/clear-or-move.sh
 
 # Tmux post setup script (plugins)
@@ -326,7 +410,6 @@ manage_symlink ./zsh/.zsh_functions $ZSHC/.zsh_functions
 manage_symlink ./zsh/.p10k.zsh      $HOME/.p10k.zsh
 
 
-# Cleanup
-unset print_help manage_symlink resolve_path category_enabled parse_arg check_and_create_dir backup_file ZSHC SETUP_QUIET EXTRA REMOVE DIRS CATEGORY CATEGORY_ALL CATEGORY_TRUE category_enabled extra_info CATEGORY_EXCLUDE
+[ $CHECK = true ] && print_check_results
 
 true
