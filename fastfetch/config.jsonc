@@ -74,17 +74,12 @@
         },
         "break",
         {
-            "type": "de",
-            "key": " DE",
+            "type": "wm",
+            "key": " WM",
             "keyColor": "blue"
         },
         {
             "type": "lm",
-            "key": "│ ├",
-            "keyColor": "blue"
-        },
-        {
-            "type": "wm",
             "key": "│ ├",
             "keyColor": "blue"
         },
@@ -96,7 +91,7 @@
         {
             "type": "gpu",
             "key": "└ └󰍛",
-            "format": "{3}",
+            "format": "{2}",
             "keyColor": "blue"
         },
         {
