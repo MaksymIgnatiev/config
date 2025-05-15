@@ -1,6 +1,7 @@
 export EDITOR="nvim"
 export VISUAL="nvim"
 export BROWSER="thunar"
+export MANPAGER="nvim +Man!"
 
 export PYENV_ROOT="$HOME/.pyenv"
 export BUN_INSTALL="$HOME/.bun"
