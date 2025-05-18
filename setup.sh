@@ -312,6 +312,10 @@ manage_symlink() {
 
 # Per-category setup
 
+CATEGORY="bash"
+
+# Bash
+manage_symlink ./bash/.bashrc $HOME/.bashrc
 
 CATEGORY="dunst"
 
