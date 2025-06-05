@@ -7,7 +7,7 @@ export PYENV_ROOT="$HOME/.pyenv"
 export BUN_INSTALL="$HOME/.bun"
 export NVM_DIR="$HOME/.nvm"
 
-# need for aliases
+# needed for aliases
 export config=~/.config
 
 # if running inside termux
@@ -24,7 +24,8 @@ export QT_STYLE_OVERRIDE=Breeze
 export QT_QPA_PLATFORMTHEME=qt5ct
 export QT_QPA_PLATFORMTHEME=qt6ct
 
-export XDG_CURRENT_DESKTOP=i3
+## unsure
+# export XDG_CURRENT_DESKTOP=i3
 export FILE_BROWSER=thunar
 
 export FZF_DEFAULT_OPTS='--preview "[ -f {} ] && bat --style=numbers --color=always"'
