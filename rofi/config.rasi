@@ -12,7 +12,7 @@ configuration {
     display-run: " 🏃  Run ";
     display-window: " 🪟  Window";
     display-drun: "   Drun";
-    display-filebrowser: " 📂 Filebrowser";
+    display-filebrowser: " 📂 Files";
     sidebar-mode: true;
 
 	// Vi keys for navigation

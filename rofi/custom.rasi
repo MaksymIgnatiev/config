@@ -57,7 +57,7 @@ entry {
 
 listview {
 	border: 0px 0px 0px;
-	padding: 6px 0px 0px;
+	padding: 6px 20px 0px 0px;
 	margin: 10px 0px 0px 20px;
 	columns: 1;
 	lines: 8;
@@ -82,7 +82,7 @@ element selected {
 
 mode-switcher {
 	spacing: 0;
-  }
+}
 
 button {
 	padding: 10px;
