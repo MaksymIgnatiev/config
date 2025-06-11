@@ -1,4 +1,6 @@
 * {
+	font: "Fira Code Nerd Font 16";
+
 	bg:  #020;
 	bg-selected:  #030;
 	selected-col: #040;
@@ -7,7 +9,10 @@
 	fg: #afa;
 	light-green: #0a0;
 	grey: #aaa;
-	font: "Fira Code Nerd Font 14";
+
+	button-border-radius: 30px;
+	window-padding: 10px;
+	window-border-radius: 20px;
 }
 
 element-text,
@@ -20,8 +25,9 @@ mode-switcher {
 window {
 	width: 50%;
 	height: 50%;
-	border-radius: 20px;
+	border-radius: @window-border-radius;
 	background-color: @bg;
+	padding: @window-padding;
 }
 
 mainbox {
@@ -29,17 +35,17 @@ mainbox {
 }
 
 inputbar {
-	children: [prompt,entry];
+	children: [prompt, entry];
 	background-color: @bg;
 	border-radius: 20px;
-	padding: 1%;
+	margin: 0px 0px 30px 0px;
 }
 
 prompt {
 	background-color: @bg-selected;
 	padding: 6px;
 	text-color: @fg;
-	border-radius: 3px;
+	border-radius: 6px;
 	margin: 20px 0px 0px 20px;
 }
 
@@ -56,9 +62,8 @@ entry {
 }
 
 listview {
-	border: 0px 0px 0px;
-	padding: 6px 20px 0px 0px;
-	margin: 10px 0px 0px 20px;
+	padding: 0px 20px;
+	margin: 0px 0px 10px 0px;
 	columns: 1;
 	lines: 8;
 	background-color: @bg;
@@ -75,7 +80,7 @@ element-icon {
 }
 
 element selected {
-	background-color:  @selected-col ;
+	background-color:  @selected-col;
 	border-radius: 5px;
 	text-color: @fg;
 }
@@ -94,7 +99,7 @@ button {
 
 button selected {
   background-color: @bg-selected;
-  border-radius: 30%;
+  border-radius: @button-border-radius;
   text-color: @fg;
 }
 
